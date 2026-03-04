@@ -1,6 +1,6 @@
 {
     "enableOption": true,
-    "hotkeyOption": true,
+    "hotkeyOption": false,
     "colorPresetList": [
         {
             "r": 0.9100000262260437,
