@@ -10,7 +10,6 @@ public class CrowdController : MonoBehaviour
     // resets when reaching max threshold
     // keeps wave oscillating between 1 and 0
 
-
     [SerializeField] List<GameObject> waveLayers = new List<GameObject>();
 
     [SerializeField] private bool toggle;
@@ -24,15 +23,7 @@ public class CrowdController : MonoBehaviour
     private void Start()
     {
         originalY = waveLayers[0].transform.position.y;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            StartCoroutine(RunWave());
-        }
+        StartCoroutine(RunWave());
     }
 
     IEnumerator RunWave()
@@ -40,7 +31,7 @@ public class CrowdController : MonoBehaviour
         foreach(GameObject t in waveLayers)
         {
             StartCoroutine(MoveWaveLayer(t.transform, waveLayers.IndexOf(t)));
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.01f);
         }
     }
 
