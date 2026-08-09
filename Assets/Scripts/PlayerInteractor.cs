@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,7 +14,7 @@ public class PlayerInteractor : MonoBehaviour
 
     private void Awake()
     {
-        playerCamObj = FindAnyObjectByType<Camera>().gameObject;
+        playerCamObj = CameraManager.Instance.PlayerCam.gameObject;
         playerCam = playerCamObj.transform;
     }
 

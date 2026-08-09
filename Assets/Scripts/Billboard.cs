@@ -1,12 +1,13 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class Billboard : MonoBehaviour
 {
-    private Camera mainCamera;
+    private CinemachineCamera mainCamera;
 
     void Start()
     {
-        mainCamera = Camera.main;
+        mainCamera = CameraManager.Instance.PlayerCam;
     }
 
     void LateUpdate()

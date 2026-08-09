@@ -6,5 +6,4 @@ public class Interactable : MonoBehaviour, IInteractable
     {
         Debug.Log($"Interaction with {gameObject}");
     }
-
 }

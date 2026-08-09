@@ -36,6 +36,4 @@ public class SimpleFilter : MonoBehaviour
         }
         Debug.Log($"Effect toggled - Status: {material.IsKeywordEnabled("TOGGLE_EFFECT")}");
     }
-
-
 }
