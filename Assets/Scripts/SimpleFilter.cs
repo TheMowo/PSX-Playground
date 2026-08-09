@@ -8,16 +8,19 @@ public class SimpleFilter : MonoBehaviour
     [SerializeField] private Material material;
     //[SerializeField] private RawImage rawImage;
 
-    void Start()
-    {
-        material = GetComponent<Material>();
-    }
-
     //public void OnRenderImage(RenderTexture source, RenderTexture destination)
     //{
     //    rawImage.texture = source;
     //    material.SetTexture("_MainTex", source);
     //}
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            ToggleEffect();
+        }
+    }
 
     [PropertySpace(25), Button]
     [ContextMenu("Toggle Effect")]
