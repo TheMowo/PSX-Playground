@@ -16,8 +16,9 @@ Material:
   - DISTORT_ON
   - RGB_STRIPES_ON
   - SCROLL_STATIC_ON
-  - STATIC_ON
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _Toggle_Effect
+  - multi_compile
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -50,22 +51,25 @@ Material:
     - DISTORT: 1
     - RGB_STRIPES: 1
     - SCROLL_STATIC: 1
-    - STATIC: 1
-    - Vector1_1BFF6B46: 256
+    - STATIC: 0
+    - TOGGLE_EFFECT: 0
+    - Vector1_1BFF6B46: 512
     - Vector1_5660967D: 1
     - Vector1_63AA1B2A: 0.2
     - Vector1_96113905: 100
     - Vector1_DF019693: 0.5
     - WOBBLE: 0
-    - _DistortionStrength: 0.5
+    - _DistortionStrength: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ScanlineHeight: 10
+    - _ScanlineHeight: 0.58
     - _ScanlineStrength: 0.4
-    - _StaticStrength: 0.08
+    - _StaticStrength: 10.6
+    - _Toggle_Effect: 0
     m_Colors:
-    - _CRTWarpStrength: {r: 1, g: 1, b: 0, a: 0}
+    - _CRTWarpStrength: {r: 0.72, g: -2.06, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &6657729383248154032
 MonoBehaviour:
   m_ObjectHideFlags: 11
