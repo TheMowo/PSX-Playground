@@ -12,7 +12,7 @@ public class PlayerInteractor : MonoBehaviour
 
     [SerializeField] private LayerMask layers;
 
-    private void Awake()
+    private void Start()
     {
         playerCamObj = CameraManager.Instance.PlayerCam.gameObject;
         playerCam = playerCamObj.transform;

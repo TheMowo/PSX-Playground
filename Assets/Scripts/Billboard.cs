@@ -3,17 +3,32 @@ using UnityEngine;
 
 public class Billboard : MonoBehaviour
 {
+    [SerializeField] private bool useActiveCam;
     private CinemachineCamera mainCamera;
+    private CinemachineCamera activeCam;
+    private bool isWorldCanvas = false;
 
     void Start()
     {
         mainCamera = CameraManager.Instance.PlayerCam;
+
+        if (GetComponent<Canvas>())
+            isWorldCanvas = true;
     }
 
     void LateUpdate()
     {
-        // Get direction to camera
-        Vector3 direction = mainCamera.transform.position - transform.position;
+        Vector3 direction;
+        if (useActiveCam)
+        {
+            activeCam = CameraManager.Instance.ActiveCamera;
+            // Get direction to camera
+            direction = activeCam.transform.position - transform.position;
+        }
+        else
+        {
+            direction = mainCamera.transform.position - transform.position;
+        }
 
         // Zero out vertical difference (Y axis)
         direction.y = 0f;
@@ -22,6 +37,11 @@ public class Billboard : MonoBehaviour
         if (direction.sqrMagnitude > 0.001f)
         {
             Quaternion rotation = Quaternion.LookRotation(direction);
+            if (isWorldCanvas)
+            {
+                // Invert the facing direction for world-space canvases
+                rotation = Quaternion.LookRotation(-direction);
+            }
             transform.rotation = rotation;
         }
     }
