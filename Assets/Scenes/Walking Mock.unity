@@ -917,15 +917,17 @@ MonoBehaviour:
   crouchKeycode: 306
   dashKeycode: 304
   slideKeycode: 308
-  gravity: -9.81
+  gravity: -15
+  fallMultiplier: 1.1
+  maxFallSpeed: -30
   jumpForce: 8
   moveSpeed: 6
   crouchSpeed: 3
   dashSpeed: 15
-  dashDuration: 0.3
-  dashCooldown: 1
+  dashDuration: 0.5
+  dashCooldown: 0.8
   slideMultiplier: 1.5
-  slideDuration: 0.6
+  slideEndThreshold: 2
   dashSlideBuffer: 0.15
   friction: 8
   animator: {fileID: 0}

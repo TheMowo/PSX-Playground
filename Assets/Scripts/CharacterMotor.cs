@@ -13,14 +13,16 @@ public class CharacterMotor : MonoBehaviour
 
     [Header("Movement Settings")]
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float fallMultiplier = 1.1f;   // exponential factor
+    [SerializeField] private float maxFallSpeed = -30f;      // clamp terminal velocity
     [SerializeField] private float jumpForce = 8f;
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float crouchSpeed = 3f;
     [SerializeField] private float dashSpeed = 15f;
-    [SerializeField] private float dashDuration = 0.3f;
-    [SerializeField] private float dashCooldown = 1f;
+    [SerializeField] private float dashDuration = 0.5f;
+    [SerializeField] private float dashCooldown = 0.8f;
     [SerializeField] private float slideMultiplier = 1.5f;
-    [SerializeField] private float slideDuration = 0.6f;
+    [SerializeField] private float slideEndThreshold = 2f; // momentum cutoff
     [SerializeField] private float dashSlideBuffer = 0.15f;
     [SerializeField] private float friction = 8f; // ground friction
 
@@ -110,9 +112,23 @@ public class CharacterMotor : MonoBehaviour
     void ApplyGravity()
     {
         if (!controller.isGrounded)
-            velocity.y += gravity * Time.deltaTime;
+        {
+            // If already falling, apply exponential growth
+            if (velocity.y < 0)
+            {
+                velocity.y *= fallMultiplier;
+                velocity.y = Mathf.Max(velocity.y, maxFallSpeed); // clamp
+            }
+            else
+            {
+                // Initial jump arc still uses normal gravity pull
+                velocity.y += gravity * Time.deltaTime;
+            }
+        }
         else if (velocity.y < 0)
-            velocity.y = -2f; // small downward force to keep grounded
+        {
+            velocity.y = -2f; // Small downward force to keep grounded
+        }
     }
     #endregion
 
@@ -124,11 +140,14 @@ public class CharacterMotor : MonoBehaviour
             isDashing = true;
             lastDashTime = Time.time;
 
-            // Add dash impulse to velocity
-            velocity += transform.forward * dashSpeed;
+            // Preserve current momentum and add dash impulse
+            Vector3 dashImpulse = (inputDir.magnitude > 0.1f ? inputDir : transform.forward) * dashSpeed;
+            velocity += dashImpulse;
+
             StartCoroutine(DashBuffer());
         }
     }
+
 
     IEnumerator DashBuffer()
     {
@@ -144,11 +163,23 @@ public class CharacterMotor : MonoBehaviour
         Vector3 slideDir = transform.forward;
         float currentSpeed = velocity.magnitude * slideMultiplier;
 
-        float startTime = Time.time;
-        while (Time.time < startTime + slideDuration)
+        while (currentSpeed > slideEndThreshold && Input.GetKey(slideKeycode))
         {
-            currentSpeed *= 0.95f; // exponential decay
+            // Exponential decay
+            currentSpeed *= 0.95f;
+
+            // Apply slide momentum
             velocity = slideDir * currentSpeed + new Vector3(0, velocity.y, 0);
+
+            // Jump cancel check
+            if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
+            {
+                // Preserve horizontal momentum into jump
+                velocity = slideDir * currentSpeed;
+                Jump();
+                break; // exit slide
+            }
+
             yield return null;
         }
 
