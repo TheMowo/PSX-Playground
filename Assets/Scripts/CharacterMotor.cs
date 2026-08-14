@@ -122,7 +122,7 @@ public class CharacterMotor : MonoBehaviour
             else
             {
                 // Initial jump arc still uses normal gravity pull
-                velocity.y += gravity * Time.deltaTime;
+                velocity.y += gravity * fallMultiplier * 1.05f * Time.deltaTime;
             }
         }
         else if (velocity.y < 0)
