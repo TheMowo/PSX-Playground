@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class ThirdPersonCamera : MonoBehaviour
@@ -16,9 +17,19 @@ public class ThirdPersonCamera : MonoBehaviour
     private float pitch;
     private Vector3 currentVelocity;
 
+    [SerializeField] private TextMeshProUGUI debugText_camLockState;
+
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        if (smoothFollow)
+        {
+            debugText_camLockState.text = $"Fixed cam: False";
+        }
+        else
+        {
+            debugText_camLockState.text = $"Fixed cam: True";
+        }
     }
 
     void Update()
@@ -28,6 +39,14 @@ public class ThirdPersonCamera : MonoBehaviour
         {
             smoothFollow = !smoothFollow;
             Debug.Log("Camera mode: " + (smoothFollow ? "Smooth Follow" : "Hard Lock"));
+            if(smoothFollow)
+            {
+                debugText_camLockState.text = $"Fixed cam: False";
+            }
+            else
+            {
+                debugText_camLockState.text = $"Fixed cam: True";
+            }
         }
     }
 

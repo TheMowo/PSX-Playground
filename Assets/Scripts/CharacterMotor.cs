@@ -23,6 +23,8 @@ public class CharacterMotor : MonoBehaviour
     [SerializeField] private float dashCooldown = 0.8f;
     [SerializeField] private float slideMultiplier = 1.5f;
     [SerializeField] private float slideEndThreshold = 2f; // momentum cutoff
+    [SerializeField] private float slideDecay = 0.98f; // slower decay for long carry
+    [SerializeField] private float slideSteerStrength = 0.15f; // how much input bends slide
     [SerializeField] private float dashSlideBuffer = 0.15f;
     [SerializeField] private float friction = 8f; // ground friction
 
@@ -32,6 +34,8 @@ public class CharacterMotor : MonoBehaviour
     private CharacterController controller;
     private GameObject debugCanvas;
     private TextMeshProUGUI debugText_playerState;
+    [SerializeField] private TextMeshProUGUI debugText_currentSpeed;
+    [SerializeField] private TextMeshProUGUI debugText_currentState;
 
     private Vector3 velocity;
     private Vector3 inputDir;
@@ -77,6 +81,9 @@ public class CharacterMotor : MonoBehaviour
 
         UpdateAnimator();
         UpdateDebugState();
+
+        Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+        debugText_currentSpeed.text = ($"Current speed: {horizontalVel.magnitude}");
     }
 
     #region Movement
@@ -160,24 +167,41 @@ public class CharacterMotor : MonoBehaviour
     IEnumerator SlideCoroutine()
     {
         isSliding = true;
-        Vector3 slideDir = transform.forward;
-        float currentSpeed = velocity.magnitude * slideMultiplier;
 
-        while (currentSpeed > slideEndThreshold && Input.GetKey(slideKeycode))
+        // Capture current horizontal momentum (includes dash)
+        Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+        float currentSpeed = horizontalVel.magnitude * slideMultiplier;
+        Vector3 slideDir = horizontalVel.normalized;
+
+        while (currentSpeed > slideEndThreshold && (Input.GetKey(slideKeycode) || Input.GetKey(crouchKeycode)))
         {
-            // Exponential decay
-            currentSpeed *= 0.95f;
+            // Steering input
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
+            Vector3 camForward = Camera.main.transform.forward;
+            Vector3 camRight = Camera.main.transform.right;
+            camForward.y = 0; camRight.y = 0;
+            camForward.Normalize(); camRight.Normalize();
 
-            // Apply slide momentum
+            Vector3 inputDir = (camForward * v + camRight * h).normalized;
+            if (inputDir.magnitude > 0.1f)
+            {
+                // Blend input into slide direction
+                slideDir = Vector3.Lerp(slideDir, inputDir, slideSteerStrength * Time.deltaTime).normalized;
+            }
+
+            // Exponential decay
+            currentSpeed *= slideDecay;
+
+            // Apply slide momentum (preserve vertical velocity)
             velocity = slideDir * currentSpeed + new Vector3(0, velocity.y, 0);
 
-            // Jump cancel check
+            // Jump cancel
             if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
             {
-                // Preserve horizontal momentum into jump
-                velocity = slideDir * currentSpeed;
+                velocity = slideDir * currentSpeed + new Vector3(0, velocity.y, 0);
                 Jump();
-                break; // exit slide
+                break;
             }
 
             yield return null;
@@ -185,6 +209,7 @@ public class CharacterMotor : MonoBehaviour
 
         isSliding = false;
     }
+
     #endregion
 
     #region Crouch
@@ -233,16 +258,17 @@ public class CharacterMotor : MonoBehaviour
     {
         string state = "Idle";
 
-        if (isDashing)
-            state = "Dashing";
-        else if (isSliding)
+        if (isSliding)
             state = "Sliding";
+        else if (isDashing)
+            state = "Dashing";
         else if (controller.height < 2f)
             state = "Crouching";
         else if (inputDir.magnitude > 0.1f)
             state = "Walking";
 
         debugText_playerState.text = $"STATE\n{state}";
+        debugText_currentState.text = $"Current State: {state}";
     }
     #endregion
 }
