@@ -13,6 +13,13 @@ public class DebugController : MonoBehaviour
         squashAndStretch.PlaySquashAndStretch();
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            PlaySquashStretch();
+        }
+    }
     /// Gameplay
     // Controller triggers control height of level bar
     // Top and bottom track

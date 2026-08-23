@@ -15,7 +15,7 @@ public class CharacterMotor : MonoBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float fallMultiplier = 1.1f;   // exponential factor
     [SerializeField] private float maxFallSpeed = -30f;      // clamp terminal velocity
-    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float crouchSpeed = 3f;
     [SerializeField] private float dashSpeed = 15f;
@@ -27,6 +27,9 @@ public class CharacterMotor : MonoBehaviour
     [SerializeField] private float slideSteerStrength = 0.15f; // how much input bends slide
     [SerializeField] private float dashSlideBuffer = 0.15f;
     [SerializeField] private float friction = 8f; // ground friction
+    [SerializeField] private float airAcceleration = 3f;
+    [SerializeField] private float maxAirSpeed = 15f;
+
 
     [Header("References")]
     [SerializeField] private Animator animator;
@@ -73,6 +76,13 @@ public class CharacterMotor : MonoBehaviour
 
         if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
             Jump();
+
+        if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
+            Jump();
+
+        HandleAirControl();   // NEW
+        ApplyGravity();
+        ApplyFriction();
 
         ApplyGravity();
         ApplyFriction();
@@ -147,7 +157,7 @@ public class CharacterMotor : MonoBehaviour
             isDashing = true;
             lastDashTime = Time.time;
 
-            // Preserve current momentum and add dash impulse
+            // Momentum chaining: add impulse to existing velocity
             Vector3 dashImpulse = (inputDir.magnitude > 0.1f ? inputDir : transform.forward) * dashSpeed;
             velocity += dashImpulse;
 
@@ -168,7 +178,6 @@ public class CharacterMotor : MonoBehaviour
     {
         isSliding = true;
 
-        // Capture current horizontal momentum (includes dash)
         Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
         float currentSpeed = horizontalVel.magnitude * slideMultiplier;
         Vector3 slideDir = horizontalVel.normalized;
@@ -185,10 +194,7 @@ public class CharacterMotor : MonoBehaviour
 
             Vector3 inputDir = (camForward * v + camRight * h).normalized;
             if (inputDir.magnitude > 0.1f)
-            {
-                // Blend input into slide direction
                 slideDir = Vector3.Lerp(slideDir, inputDir, slideSteerStrength * Time.deltaTime).normalized;
-            }
 
             // Exponential decay
             currentSpeed *= slideDecay;
@@ -210,6 +216,7 @@ public class CharacterMotor : MonoBehaviour
         isSliding = false;
     }
 
+
     #endregion
 
     #region Crouch
@@ -224,6 +231,36 @@ public class CharacterMotor : MonoBehaviour
         {
             controller.height = 2.0f;
             moveSpeed = 6f;
+        }
+    }
+    #endregion
+
+    #region Air Control
+    void HandleAirControl()
+    {
+        if (controller.isGrounded) return;
+
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        Vector3 camForward = Camera.main.transform.forward;
+        Vector3 camRight = Camera.main.transform.right;
+        camForward.y = 0; camRight.y = 0;
+        camForward.Normalize(); camRight.Normalize();
+
+        Vector3 inputDir = (camForward * v + camRight * h).normalized;
+
+        if (inputDir.magnitude > 0.1f)
+        {
+            velocity += inputDir * airAcceleration * Time.deltaTime;
+
+            Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+            if (horizontalVel.magnitude > maxAirSpeed)
+            {
+                horizontalVel = horizontalVel.normalized * maxAirSpeed;
+                velocity.x = horizontalVel.x;
+                velocity.z = horizontalVel.z;
+            }
         }
     }
     #endregion
