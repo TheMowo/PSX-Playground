@@ -12,23 +12,24 @@ public class CharacterMotor : MonoBehaviour
     [SerializeField] private KeyCode slideKeycode = KeyCode.LeftAlt;
 
     [Header("Movement Settings")]
-    [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float fallMultiplier = 1.1f;   // exponential factor
-    [SerializeField] private float maxFallSpeed = -30f;      // clamp terminal velocity
-    [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private float moveSpeed = 6f;
-    [SerializeField] private float crouchSpeed = 3f;
-    [SerializeField] private float dashSpeed = 15f;
-    [SerializeField] private float dashDuration = 0.5f;
-    [SerializeField] private float dashCooldown = 0.8f;
-    [SerializeField] private float slideMultiplier = 1.5f;
-    [SerializeField] private float slideEndThreshold = 2f; // momentum cutoff
-    [SerializeField] private float slideDecay = 0.98f; // slower decay for long carry
-    [SerializeField] private float slideSteerStrength = 0.15f; // how much input bends slide
-    [SerializeField] private float dashSlideBuffer = 0.15f;
-    [SerializeField] private float friction = 8f; // ground friction
-    [SerializeField] private float airAcceleration = 3f;
-    [SerializeField] private float maxAirSpeed = 15f;
+    private float gravity = -9.81f;
+    //private float fallMultiplier = 1.1f;   // exponential factor
+    private float maxFallSpeed = -30f;      // clamp terminal velocity
+    private float jumpForce = 8f;
+    [SerializeField] private float moveSpeed = 20f;
+    private float originalMoveSpeed;
+    private float crouchSpeed = 3f;
+    private float dashSpeed = 15f;
+    private float dashDuration = 0.5f;
+    private float dashCooldown = 0.3f;
+    private float slideMultiplier = 1.5f;
+    private float slideEndThreshold = 2f; // momentum cutoff
+    private float slideDecay = 0.99f; // slower decay for long carry
+    private float slideSteerStrength = 0.5f; // how much input bends slide
+    private float dashSlideBuffer = 0.15f;
+    private float friction = 8f; // ground friction
+    private float airAcceleration = 3f;
+    private float maxAirSpeed = 15f;
 
 
     [Header("References")]
@@ -55,6 +56,8 @@ public class CharacterMotor : MonoBehaviour
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+
+        originalMoveSpeed = moveSpeed;
     }
 
     void Start()
@@ -77,13 +80,7 @@ public class CharacterMotor : MonoBehaviour
         if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
             Jump();
 
-        if (controller.isGrounded && Input.GetKeyDown(jumpKeycode))
-            Jump();
-
         HandleAirControl();   // NEW
-        ApplyGravity();
-        ApplyFriction();
-
         ApplyGravity();
         ApplyFriction();
 
@@ -92,7 +89,7 @@ public class CharacterMotor : MonoBehaviour
         UpdateAnimator();
         UpdateDebugState();
 
-        Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+        Vector3 horizontalVel = new (velocity.x, 0, velocity.z);
         debugText_currentSpeed.text = ($"Current speed: {horizontalVel.magnitude}");
     }
 
@@ -115,8 +112,9 @@ public class CharacterMotor : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(inputDir);
 
         // Apply movement input to velocity (horizontal only)
-        velocity.x = inputDir.x * moveSpeed;
-        velocity.z = inputDir.z * moveSpeed;
+        Vector3 targetVel = inputDir * moveSpeed;
+        velocity.x = Mathf.Lerp(velocity.x, targetVel.x, 0.2f);
+        velocity.z = Mathf.Lerp(velocity.z, targetVel.z, 0.2f);
     }
     #endregion
 
@@ -130,22 +128,14 @@ public class CharacterMotor : MonoBehaviour
     {
         if (!controller.isGrounded)
         {
-            // If already falling, apply exponential growth
-            if (velocity.y < 0)
-            {
-                velocity.y *= fallMultiplier;
-                velocity.y = Mathf.Max(velocity.y, maxFallSpeed); // clamp
-            }
-            else
-            {
-                // Initial jump arc still uses normal gravity pull
-                velocity.y += gravity * fallMultiplier * 1.05f * Time.deltaTime;
-            }
+            velocity.y += gravity * Time.deltaTime;
+            velocity.y = Mathf.Max(velocity.y, maxFallSpeed);
         }
         else if (velocity.y < 0)
         {
-            velocity.y = -2f; // Small downward force to keep grounded
+            velocity.y = -2f; // keep grounded
         }
+
     }
     #endregion
 
@@ -178,7 +168,7 @@ public class CharacterMotor : MonoBehaviour
     {
         isSliding = true;
 
-        Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+        Vector3 horizontalVel = new (velocity.x, 0, velocity.z);
         float currentSpeed = horizontalVel.magnitude * slideMultiplier;
         Vector3 slideDir = horizontalVel.normalized;
 
@@ -230,7 +220,7 @@ public class CharacterMotor : MonoBehaviour
         else
         {
             controller.height = 2.0f;
-            moveSpeed = 6f;
+            moveSpeed = originalMoveSpeed;
         }
     }
     #endregion
@@ -252,9 +242,9 @@ public class CharacterMotor : MonoBehaviour
 
         if (inputDir.magnitude > 0.1f)
         {
-            velocity += inputDir * airAcceleration * Time.deltaTime;
+            velocity += airAcceleration * Time.deltaTime * inputDir;
 
-            Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+            Vector3 horizontalVel = new (velocity.x, 0, velocity.z);
             if (horizontalVel.magnitude > maxAirSpeed)
             {
                 horizontalVel = horizontalVel.normalized * maxAirSpeed;
@@ -270,7 +260,7 @@ public class CharacterMotor : MonoBehaviour
     {
         if (controller.isGrounded && !isDashing && !isSliding)
         {
-            Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+            Vector3 horizontalVel = new (velocity.x, 0, velocity.z);
             horizontalVel = Vector3.Lerp(horizontalVel, Vector3.zero, friction * Time.deltaTime);
             velocity.x = horizontalVel.x;
             velocity.z = horizontalVel.z;

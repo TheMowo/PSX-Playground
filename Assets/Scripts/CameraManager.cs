@@ -13,6 +13,9 @@ public class CameraManager : MonoBehaviour
     private CinemachineCamera _playerCam;
     public CinemachineCamera PlayerCam => _playerCam;
 
+    private CinemachineBrain _brain;
+    public CinemachineBrain Brain => _brain;
+
     private const int ActivePriority = 10;
     private const int InactivePriority = 0;
 
@@ -27,6 +30,8 @@ public class CameraManager : MonoBehaviour
         Instance = this;
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
+
+        _brain = FindAnyObjectByType<CinemachineBrain>();
 
         // Auto-discover all cameras in the scene
         var foundCams = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);

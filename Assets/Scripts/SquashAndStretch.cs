@@ -4,242 +4,245 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class SquashAndStretch : MonoBehaviour
+namespace Birno
 {
-    [Header("Notes")]
-    [SerializeField, Multiline(2)] private string notes;
-
-    [Header("Squash and Stretch Core")]
-    [SerializeField, Tooltip("Defaults to current GO if not set.")/*, ChildGameObjectsOnly*/] private List<Transform> transformToAffect = new List<Transform>();
-    [SerializeField] private SquashStretchAxis axisToAffect = SquashStretchAxis.Y;
-    [SerializeField, Range(0, 1f), SuffixLabel("s", true)] private float animationDuration = 0.25f;
-    [SerializeField] private bool canBeOverwritten;
-    [SerializeField] private bool playOnStart;
-    [SerializeField] private bool playsEveryTime = true;
-    [SerializeField, Range(0, 100f), SuffixLabel("%", true)] private float chanceToPlay = 100f;
-
-    [Flags]
-    public enum SquashStretchAxis
+    public class SquashAndStretch : MonoBehaviour
     {
-        None = 0,
-        X = 1,
-        Y = 2,
-        Z = 4
-    }
+        [Header("Notes")]
+        [SerializeField, Multiline(2)] private string notes;
 
+        [Header("Squash and Stretch Core")]
+        [SerializeField, Tooltip("Defaults to current GO if not set.")/*, ChildGameObjectsOnly*/] private List<Transform> transformToAffect = new List<Transform>();
+        [SerializeField] private SquashStretchAxis axisToAffect = SquashStretchAxis.Y;
+        [SerializeField, Range(0, 1f), SuffixLabel("s", true)] private float animationDuration = 0.25f;
+        [SerializeField] private bool canBeOverwritten;
+        [SerializeField] private bool playOnStart;
+        [SerializeField] private bool playsEveryTime = true;
+        [SerializeField, Range(0, 100f), SuffixLabel("%", true)] private float chanceToPlay = 100f;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float initialScale = 1f;
-    [SerializeField] private float maximumScale = 1.3f;
-    [SerializeField] private bool resetToInitialScaleAfterAnimation = true;
-    [SerializeField] private bool reverseAnimationCurveAfterPlaying;
-    private bool _isReversed;
-
-    [SerializeField]
-    private AnimationCurve squashAndStretchCurve = new AnimationCurve(
-        new Keyframe(0f, 0f),
-        new Keyframe(0.25f, 1f),
-        new Keyframe(1f, 0f)
-    );
-
-
-    [Header("Looping Settings")]
-    [SerializeField] private bool looping;
-    [SerializeField, SuffixLabel("sec", true)] private float loopingDelay = 0.5f;
-
-
-    private Coroutine _squashAndStretchCoroutine;
-    private WaitForSeconds _loopingDelayWaitForSeconds;
-    private Vector3 _initialScaleVector;
-
-
-    private bool affectX => (axisToAffect & SquashStretchAxis.X) != 0;
-    private bool affectY => (axisToAffect & SquashStretchAxis.Y) != 0;
-    private bool affectZ => (axisToAffect & SquashStretchAxis.Z) != 0;
-
-
-    private static event Action _squashAndStretchAllObjectsLikeThis;
-
-
-
-    private void Awake()
-    {
-        if (transformToAffect == null)
+        [Flags]
+        public enum SquashStretchAxis
         {
-            foreach(Transform t in transformToAffect)
-            {
-                transformToAffect[transformToAffect.IndexOf(t)] = transform;
-            }
+            None = 0,
+            X = 1,
+            Y = 2,
+            Z = 4
         }
 
-        foreach (Transform t in transformToAffect)
+
+        [Header("Animation Settings")]
+        [SerializeField] private float initialScale = 1f;
+        [SerializeField] private float maximumScale = 1.3f;
+        [SerializeField] private bool resetToInitialScaleAfterAnimation = true;
+        [SerializeField] private bool reverseAnimationCurveAfterPlaying;
+        private bool _isReversed;
+
+        [SerializeField]
+        private AnimationCurve squashAndStretchCurve = new AnimationCurve(
+            new Keyframe(0f, 0f),
+            new Keyframe(0.25f, 1f),
+            new Keyframe(1f, 0f)
+        );
+
+
+        [Header("Looping Settings")]
+        [SerializeField] private bool looping;
+        [SerializeField, SuffixLabel("sec", true)] private float loopingDelay = 0.5f;
+
+
+        private Coroutine _squashAndStretchCoroutine;
+        private WaitForSeconds _loopingDelayWaitForSeconds;
+        private Vector3 _initialScaleVector;
+
+
+        private bool affectX => (axisToAffect & SquashStretchAxis.X) != 0;
+        private bool affectY => (axisToAffect & SquashStretchAxis.Y) != 0;
+        private bool affectZ => (axisToAffect & SquashStretchAxis.Z) != 0;
+
+
+        private static event Action _squashAndStretchAllObjectsLikeThis;
+
+
+
+        private void Awake()
         {
-            _initialScaleVector = transformToAffect[transformToAffect.IndexOf(t)].localScale;
-        }
-        _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
-    }
-
-    public static void SquashAndStretchAllObjectsLikeThis()
-    {
-        _squashAndStretchAllObjectsLikeThis?.Invoke();
-    }
-
-    private void OnEnable()
-    {
-        _squashAndStretchAllObjectsLikeThis += PlaySquashAndStretch;
-    }
-
-    private void OnDisable()
-    {
-        if (_squashAndStretchCoroutine != null)
-            StopCoroutine(_squashAndStretchCoroutine);
-
-        _squashAndStretchAllObjectsLikeThis -= PlaySquashAndStretch;
-    }
-
-
-
-    private void Start()
-    {
-        if (playOnStart)
-            CheckForAndStartCoroutine();
-    }
-
-    [PropertySpace(25), Button]
-    [ContextMenu("Play Squash and Stretch")]
-    public void PlaySquashAndStretch()
-    {
-        if (looping && !canBeOverwritten)
-            return;
-
-        CheckForAndStartCoroutine();
-    }
-
-    private void CheckForAndStartCoroutine()
-    {
-        if (axisToAffect == SquashStretchAxis.None)
-        {
-            Debug.Log("Axis to affect is set to None.", gameObject);
-            return;
-        }
-
-        if (_squashAndStretchCoroutine != null)
-        {
-            StopCoroutine(_squashAndStretchCoroutine);
-            if (playsEveryTime && resetToInitialScaleAfterAnimation)
+            if (transformToAffect == null)
             {
                 foreach (Transform t in transformToAffect)
                 {
-                    transformToAffect[transformToAffect.IndexOf(t)].localScale = _initialScaleVector;
+                    transformToAffect[transformToAffect.IndexOf(t)] = transform;
                 }
             }
+
+            foreach (Transform t in transformToAffect)
+            {
+                _initialScaleVector = transformToAffect[transformToAffect.IndexOf(t)].localScale;
+            }
+            _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
         }
 
-        _squashAndStretchCoroutine = StartCoroutine(SquashAndStretchEffect());
-    }
-
-
-    private IEnumerator SquashAndStretchEffect()
-    {
-        do
+        public static void SquashAndStretchAllObjectsLikeThis()
         {
-            if (!playsEveryTime)
+            _squashAndStretchAllObjectsLikeThis?.Invoke();
+        }
+
+        private void OnEnable()
+        {
+            _squashAndStretchAllObjectsLikeThis += PlaySquashAndStretch;
+        }
+
+        private void OnDisable()
+        {
+            if (_squashAndStretchCoroutine != null)
+                StopCoroutine(_squashAndStretchCoroutine);
+
+            _squashAndStretchAllObjectsLikeThis -= PlaySquashAndStretch;
+        }
+
+
+
+        private void Start()
+        {
+            if (playOnStart)
+                CheckForAndStartCoroutine();
+        }
+
+        [PropertySpace(25), Button]
+        [ContextMenu("Play Squash and Stretch")]
+        public void PlaySquashAndStretch()
+        {
+            if (looping && !canBeOverwritten)
+                return;
+
+            CheckForAndStartCoroutine();
+        }
+
+        private void CheckForAndStartCoroutine()
+        {
+            if (axisToAffect == SquashStretchAxis.None)
             {
-                float random = UnityEngine.Random.Range(0, 100f);
-                if (random > chanceToPlay)
+                Debug.Log("Axis to affect is set to None.", gameObject);
+                return;
+            }
+
+            if (_squashAndStretchCoroutine != null)
+            {
+                StopCoroutine(_squashAndStretchCoroutine);
+                if (playsEveryTime && resetToInitialScaleAfterAnimation)
                 {
+                    foreach (Transform t in transformToAffect)
+                    {
+                        transformToAffect[transformToAffect.IndexOf(t)].localScale = _initialScaleVector;
+                    }
+                }
+            }
+
+            _squashAndStretchCoroutine = StartCoroutine(SquashAndStretchEffect());
+        }
+
+
+        private IEnumerator SquashAndStretchEffect()
+        {
+            do
+            {
+                if (!playsEveryTime)
+                {
+                    float random = UnityEngine.Random.Range(0, 100f);
+                    if (random > chanceToPlay)
+                    {
+                        yield return null;
+                        continue;
+                    }
+                }
+
+                if (reverseAnimationCurveAfterPlaying)
+                    _isReversed = !_isReversed;
+
+                float elapsedTime = 0;
+                Vector3 originalScale = _initialScaleVector;
+                Vector3 modifiedScale = originalScale;
+
+                while (elapsedTime < animationDuration)
+                {
+                    elapsedTime += Time.deltaTime;
+
+                    float curvePosition;
+
+                    if (_isReversed)
+                        curvePosition = 1 - (elapsedTime / animationDuration);
+                    else
+                        curvePosition = elapsedTime / animationDuration;
+
+                    float curveValue = squashAndStretchCurve.Evaluate(curvePosition);
+                    float remappedValue = initialScale + (curveValue * (maximumScale - initialScale));
+
+                    float minimumThreshold = 0.0001f;
+                    if (Mathf.Abs(remappedValue) < minimumThreshold)
+                        remappedValue = minimumThreshold;
+
+                    if (affectX)
+                        modifiedScale.x = originalScale.x * remappedValue;
+                    else
+                        modifiedScale.x = originalScale.x / remappedValue;
+
+                    if (affectY)
+                        modifiedScale.y = originalScale.y * remappedValue;
+                    else
+                        modifiedScale.y = originalScale.y / remappedValue;
+
+                    if (affectZ)
+                        modifiedScale.z = originalScale.z * remappedValue;
+                    else
+                        modifiedScale.z = originalScale.z / remappedValue;
+
+                    foreach (Transform t in transformToAffect)
+                    {
+                        transformToAffect[transformToAffect.IndexOf(t)].localScale = modifiedScale;
+                    }
+
                     yield return null;
-                    continue;
                 }
-            }
 
-            if (reverseAnimationCurveAfterPlaying)
-                _isReversed = !_isReversed;
-
-            float elapsedTime = 0;
-            Vector3 originalScale = _initialScaleVector;
-            Vector3 modifiedScale = originalScale;
-
-            while (elapsedTime < animationDuration)
-            {
-                elapsedTime += Time.deltaTime;
-
-                float curvePosition;
-
-                if (_isReversed)
-                    curvePosition = 1 - (elapsedTime / animationDuration);
-                else
-                    curvePosition = elapsedTime / animationDuration;
-
-                float curveValue = squashAndStretchCurve.Evaluate(curvePosition);
-                float remappedValue = initialScale + (curveValue * (maximumScale - initialScale));
-
-                float minimumThreshold = 0.0001f;
-                if (Mathf.Abs(remappedValue) < minimumThreshold)
-                    remappedValue = minimumThreshold;
-
-                if (affectX)
-                    modifiedScale.x = originalScale.x * remappedValue;
-                else
-                    modifiedScale.x = originalScale.x / remappedValue;
-
-                if (affectY)
-                    modifiedScale.y = originalScale.y * remappedValue;
-                else
-                    modifiedScale.y = originalScale.y / remappedValue;
-
-                if (affectZ)
-                    modifiedScale.z = originalScale.z * remappedValue;
-                else
-                    modifiedScale.z = originalScale.z / remappedValue;
-
-                foreach (Transform t in transformToAffect)
+                if (resetToInitialScaleAfterAnimation)
                 {
-                    transformToAffect[transformToAffect.IndexOf(t)].localScale = modifiedScale;
+                    foreach (Transform t in transformToAffect)
+                    {
+                        transformToAffect[transformToAffect.IndexOf(t)].localScale = originalScale;
+                    }
                 }
 
-                yield return null;
-            }
 
-            if (resetToInitialScaleAfterAnimation)
-            {
-                foreach (Transform t in transformToAffect)
+                if (looping)
                 {
-                    transformToAffect[transformToAffect.IndexOf(t)].localScale = originalScale;
+                    yield return _loopingDelayWaitForSeconds;
                 }
-            }
-                
-
-            if (looping)
-            {
-                yield return _loopingDelayWaitForSeconds;
-            }
-        } while (looping);
-    }
+            } while (looping);
+        }
 
 
-    public void SetLooping(bool shouldLoop)
-    {
-        looping = shouldLoop;
-    }
+        public void SetLooping(bool shouldLoop)
+        {
+            looping = shouldLoop;
+        }
 
 
 
 
-    public void Setup(SquashStretchAxis axis, float time, float zeroMap, float oneMap, AnimationCurve curve,
-        bool loop, float delay, bool playImmediately = false)
-    {
-        axisToAffect = axis;
-        animationDuration = time;
-        initialScale = zeroMap;
-        maximumScale = oneMap;
-        squashAndStretchCurve = curve;
-        looping = loop;
-        loopingDelay = delay;
+        public void Setup(SquashStretchAxis axis, float time, float zeroMap, float oneMap, AnimationCurve curve,
+            bool loop, float delay, bool playImmediately = false)
+        {
+            axisToAffect = axis;
+            animationDuration = time;
+            initialScale = zeroMap;
+            maximumScale = oneMap;
+            squashAndStretchCurve = curve;
+            looping = loop;
+            loopingDelay = delay;
 
-        _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
+            _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
 
-        if (playImmediately)
-            CheckForAndStartCoroutine();
+            if (playImmediately)
+                CheckForAndStartCoroutine();
+        }
     }
 }

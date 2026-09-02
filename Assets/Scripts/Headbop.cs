@@ -1,9 +1,12 @@
 using TMPro;
 using UnityEngine;
 
-public class Headbop : MonoBehaviour
+namespace Birno
 {
-    // Min Y & Max Y
-    // Bobs between the two values
+    public class Headbop : MonoBehaviour
+    {
+        // Min Y & Max Y
+        // Bobs between the two values
 
+    }
 }

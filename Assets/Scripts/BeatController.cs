@@ -1,32 +1,35 @@
 using UnityEngine;
 
-public class BeatController : MonoBehaviour
+namespace Birno
 {
-    public AudioSource audioSource;
-    public float songBpm = 120f; // Set your song's tempo here
-
-    private float secPerBeat;
-    private float songPosition;
-    private float songPositionInBeats;
-    private float dspSongTime;
-
-    void Start()
+    public class BeatController : MonoBehaviour
     {
-        secPerBeat = 60f / songBpm;
-        dspSongTime = (float)AudioSettings.dspTime;
-        audioSource.Play();
-    }
+        public AudioSource audioSource;
+        public float songBpm = 120f; // Set your song's tempo here
 
-    void Update()
-    {
-        // Calculate the exact position of the track in seconds
-        songPosition = (float)(AudioSettings.dspTime - dspSongTime);
+        private float secPerBeat;
+        private float songPosition;
+        private float songPositionInBeats;
+        private float dspSongTime;
 
-        // Convert the song position into beats
-        songPositionInBeats = songPosition / secPerBeat;
+        void Start()
+        {
+            secPerBeat = 60f / songBpm;
+            dspSongTime = (float)AudioSettings.dspTime;
+            audioSource.Play();
+        }
 
-        // Example: Check if a full beat has passed to trigger an action
-        int currentBeat = Mathf.FloorToInt(songPositionInBeats);
-        // Put logic here to spawn notes or pulse visuals on 'currentBeat'
+        void Update()
+        {
+            // Calculate the exact position of the track in seconds
+            songPosition = (float)(AudioSettings.dspTime - dspSongTime);
+
+            // Convert the song position into beats
+            songPositionInBeats = songPosition / secPerBeat;
+
+            // Example: Check if a full beat has passed to trigger an action
+            int currentBeat = Mathf.FloorToInt(songPositionInBeats);
+            // Put logic here to spawn notes or pulse visuals on 'currentBeat'
+        }
     }
 }

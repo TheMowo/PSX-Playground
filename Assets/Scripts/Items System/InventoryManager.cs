@@ -3,8 +3,10 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
+    // For receiving item pickup data, adding it to the inventory both visually and in player data
+
     public static InventoryManager Instance;
-    private Dictionary<ItemData, int> items = new Dictionary<ItemData, int>();
+    private Dictionary<ItemData, int> items = new();
 
     void Awake() => Instance = this;
 

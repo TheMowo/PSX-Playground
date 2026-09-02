@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6900183780993410627}
   - component: {fileID: 8642832616178081124}
   - component: {fileID: 5259715792759701703}
-  - component: {fileID: 1003711360771822990}
+  - component: {fileID: 6119832787999098814}
   m_Layer: 0
   m_Name: Lootable Box
   m_TagString: Untagged
@@ -113,7 +113,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1003711360771822990
+--- !u!114 &6119832787999098814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,9 +122,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1666172628548415989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1d74160fcf89964298959c8d0578821, type: 3}
+  m_Script: {fileID: 11500000, guid: 8fa9b987d888b3d4ab64659aa4622c7e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Lootable
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   lootContents:
   - item: {fileID: 11400000, guid: 33990830887906d418210ae45c94542c, type: 2}
-    quantity: 1
+    quantity: 0

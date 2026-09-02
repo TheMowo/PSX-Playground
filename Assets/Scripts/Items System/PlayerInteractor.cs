@@ -1,9 +1,11 @@
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInteractor : MonoBehaviour
 {
+    // For code pretaining to player interaction ability
+    // Depreceated, replaced by InteractionAbility
+
     private GameObject playerCamObj;
     private Transform playerCam;
     [SerializeField] private float interactionDist = 3;
@@ -25,7 +27,8 @@ public class PlayerInteractor : MonoBehaviour
     }
     private void OnDisable()
     {
-        
+        inputActionReference.action.Disable();
+        inputActionReference.action.started -= PlayerInteracted;
     }
 
     private void PlayerInteracted(InputAction.CallbackContext context)
