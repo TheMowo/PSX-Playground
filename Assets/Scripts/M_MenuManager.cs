@@ -55,11 +55,7 @@ public class M_MenuManager : MonoBehaviour
     private void OnEnable()
     {
         Initialize();
-        if (_tabs.Count > 0)
-            _tabs[_pageIndex].SetIsOnWithoutNotify(true);
     }
-
-
 
     private void Awake()
     {
@@ -73,10 +69,17 @@ public class M_MenuManager : MonoBehaviour
         if (_settingsMenu != null)
             _settingsMenu.SetActive(false);
 
+        // Force reset to page 0
         _pageIndex = 0;
-        JumpToPage(_pageIndex);
-    }
 
+        // Explicitly turn off all tabs except 0
+        for (int i = 0; i < _tabs.Count; i++)
+        {
+            _tabs[i].SetIsOnWithoutNotify(i == 0);
+        }
+
+        OpenPage(_pageIndex); // show page 0
+    }
 
     private void OnDestroy()
     {

@@ -678,20 +678,6 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "1f1aeafd1ced4a3dbc4b18603bf49696"
-                },
-                "m_SlotId": 2
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "96715540a6fa4e83bd033885e378fbac"
-                },
-                "m_SlotId": 1
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
                     "m_Id": "2411accbf50a2b89a9e6364f0b1e70c3"
                 },
                 "m_SlotId": 0
@@ -1891,6 +1877,20 @@
                     "m_Id": "1f1aeafd1ced4a3dbc4b18603bf49696"
                 },
                 "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "ee54d90895abef858540b229a7036152"
+                },
+                "m_SlotId": 4
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "96715540a6fa4e83bd033885e378fbac"
+                },
+                "m_SlotId": 1
             }
         },
         {
@@ -6678,8 +6678,8 @@
     "m_ObjectId": "5a56e2a85f72454bab2d0ad6749eea28",
     "m_Title": "Colour Strips",
     "m_Position": {
-        "x": -3827.19970703125,
-        "y": -1025.599853515625
+        "x": -3827.199951171875,
+        "y": -1025.5999755859375
     }
 }
 
@@ -9335,7 +9335,7 @@
     "m_Title": "Static",
     "m_Position": {
         "x": -3075.199951171875,
-        "y": 1307.1998291015625
+        "y": 1307.2000732421875
     }
 }
 
@@ -9371,7 +9371,7 @@
     "m_Title": "CRT Screen edges",
     "m_Position": {
         "x": -2433.60009765625,
-        "y": -458.40008544921877
+        "y": -458.39996337890627
     }
 }
 
@@ -9999,7 +9999,7 @@
     "m_ObjectId": "97eceb2bf92b41328af3c03c9fa743db",
     "m_Title": "Scrolling Distortion / Static",
     "m_Position": {
-        "x": -4189.599609375,
+        "x": -4189.60009765625,
         "y": 888.7999877929688
     }
 }
@@ -12667,7 +12667,7 @@
     "m_Title": "Brightness",
     "m_Position": {
         "x": -2400.800048828125,
-        "y": -874.3998413085938
+        "y": -874.3999633789063
     }
 }
 
@@ -13747,7 +13747,7 @@
     "m_Title": "Scanlines",
     "m_Position": {
         "x": -1619.199951171875,
-        "y": -967.9999389648438
+        "y": -968.0
     }
 }
 
@@ -14419,8 +14419,8 @@
     "m_ObjectId": "e93a99a7868647c1a7bba2ffa3f162c7",
     "m_Title": "Main Texture",
     "m_Position": {
-        "x": -1377.599853515625,
-        "y": 503.9999084472656
+        "x": -1377.5999755859375,
+        "y": 503.99993896484377
     }
 }
 

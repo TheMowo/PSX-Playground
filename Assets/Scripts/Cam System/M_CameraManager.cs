@@ -113,4 +113,33 @@ public class M_CameraManager : MonoBehaviour
         OnBlendFinishedEvent?.Invoke(_activeCamera);
     }
 
+
+    // Returns a ray from the active Cinemachine camera using screen position.
+    public Ray GetActiveCameraRay(Vector2 screenPosition, RenderTexture target = null)
+    {
+        if (_brain != null && _brain.OutputCamera != null)
+        {
+            Vector2 adjustedPos = screenPosition;
+
+            // If rendering into a RenderTexture, normalize to its resolution
+            if (target != null)
+            {
+                float scaleX = target.width / (float)Screen.width;
+                float scaleY = target.height / (float)Screen.height;
+
+                adjustedPos = new Vector2(
+                    screenPosition.x * scaleX,
+                    screenPosition.y * scaleY
+                );
+            }
+
+            return _brain.OutputCamera.ScreenPointToRay(adjustedPos);
+        }
+
+        // Fallback to Camera.main
+        if (Camera.main != null)
+            return Camera.main.ScreenPointToRay(screenPosition);
+
+        return new Ray(Vector3.zero, Vector3.forward);
+    }
 }
