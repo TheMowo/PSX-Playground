@@ -21,6 +21,6 @@ public class Terminal : MonoBehaviour, IInteractable
         currentIndex = (currentIndex + 1) % cameras.Count;
 
         CinemachineCamera newCamera = cameras[currentIndex];
-        CameraManager.Instance.SwitchCamera(newCamera);
+        M_CameraManager.Instance.SwitchCamera(newCamera);
     }
 }

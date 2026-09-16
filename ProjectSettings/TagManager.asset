@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayerCam
   - DebugCanvas
+  - ToggleButton
   layers:
   - Default
   - TransparentFX

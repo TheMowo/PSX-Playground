@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
 using TMPro;
 
 public class DialogueManager : MonoBehaviour
@@ -32,4 +30,7 @@ public class DialogueManager : MonoBehaviour
             Debug.Log("Error: Key not found.");
         }
     }
+
+    // Enter Dialogue
+    // Open Dialogue Box UI
 }

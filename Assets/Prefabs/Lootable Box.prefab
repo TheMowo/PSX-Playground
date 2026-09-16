@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8642832616178081124}
   - component: {fileID: 5259715792759701703}
   - component: {fileID: 6119832787999098814}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lootable Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,5 +126,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   lootContents:
-  - item: {fileID: 11400000, guid: 33990830887906d418210ae45c94542c, type: 2}
-    quantity: 0
+  - item: {fileID: 11400000, guid: 2c70d3f64d9dc8542a470f41a9d0fe7e, type: 2}
+    quantity: 1
