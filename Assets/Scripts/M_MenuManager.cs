@@ -1,9 +1,5 @@
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -144,9 +140,21 @@ public class M_MenuManager : MonoBehaviour
     }
 
     // --- Button methods ---
-    public void Button_NewGame() => Debug.Log("Pressed New Game Button");
-    public void Button_Continue() => Debug.Log("Pressed Continue Button");
-    public void Button_Exit() => Debug.Log("Pressed Exit Button");
+    public void Button_NewGame()
+    {
+        Debug.Log("Pressed New Game Button");
+        TransitionController.Instance.PlayTransition();
+    }
+    public void Button_Continue()
+    {
+        Debug.Log("Pressed Continue Button");
+        TransitionController.Instance.PlayTransition();
+    }
+    public void Button_Exit() 
+    { 
+        Debug.Log("Pressed Exit Button");
+        UIFader.Instance.StartCoroutine(UIFader.Instance.DebugFadeOut());
+    }
 
     public void Button_OpenSettings()
     {

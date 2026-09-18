@@ -72,7 +72,7 @@ public class ConvertToButton : MonoBehaviour
         }
         else
         {
-            Debug.Log("Raycast did not hit anything.");
+            //Debug.Log("Raycast did not hit anything.");
             if (_isHovering)
             {
                 _isHovering = false;
