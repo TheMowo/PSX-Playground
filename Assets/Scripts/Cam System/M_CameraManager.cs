@@ -19,9 +19,8 @@ public class M_CameraManager : MonoBehaviour
     private const int InactivePriority = 0;
 
     [Header("Main Menu Cameras")]
-    [SerializeField] private CinemachineCamera _settingsCam;
-    [SerializeField] private CinemachineCamera _playerCam;
-    public CinemachineCamera SettingsCam => _settingsCam;
+    private CinemachineCamera _playerCam;
+
     public CinemachineCamera PlayerCam => _playerCam;
 
     // UnityEvent for other scripts to subscribe to
@@ -78,6 +77,8 @@ public class M_CameraManager : MonoBehaviour
 
         if (_playerCam == null && cam.CompareTag("PlayerCam"))
             _playerCam = cam;
+
+        Debug.Log($"Cam {gameObject.name} registered");
     }
 
     public void Unregister(CinemachineCamera cam)
@@ -89,9 +90,7 @@ public class M_CameraManager : MonoBehaviour
             _playerCam = null;
     }
 
-    public void SwitchToSettings() => SwitchCamera(_settingsCam);
-    public void SwitchToPlayer() => SwitchCamera(_playerCam);
-
+    #region Helpers
     // --- Coroutine Helper ---
     public void WaitForBlend(System.Action onComplete)
     {
@@ -113,6 +112,7 @@ public class M_CameraManager : MonoBehaviour
         OnBlendFinishedEvent?.Invoke(_activeCamera);
     }
 
+    #endregion
 
     // Returns a ray from the active Cinemachine camera using screen position.
     public Ray GetActiveCameraRay(Vector2 screenPosition, RenderTexture target = null)
