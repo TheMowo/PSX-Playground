@@ -4,8 +4,11 @@ public class I_NPC : MonoBehaviour, IInteractable
 {
     [Header("NPC Settings")]
     [SerializeField] private string npcName;
-    [SerializeField] private ItemData packageItem;
-    [SerializeField] private Transform testObjectiveTransform;
+    //[SerializeField] private ItemData packageItem;
+
+    [Header("Delivery Settings")]
+    [SerializeField] private DeliveryData deliveryData;
+    [SerializeField] private Transform deliveryDestination;
 
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialogueBox;
@@ -19,6 +22,7 @@ public class I_NPC : MonoBehaviour, IInteractable
 
         // Lock camera (so player can’t move view during dialogue)
         ThirdPersonCamera.Instance.UnlockCamera();
+        PlayerPublicRef.Instance.GetComponent<CharacterMotor>().DisableMovement();
 
         // Disable player interaction ability while dialogue is open
         PlayerPublicRef.Instance.gameObject.GetComponent<InteractionAbility>().enabled = false;
@@ -26,16 +30,10 @@ public class I_NPC : MonoBehaviour, IInteractable
 
     public void Button_AcceptDelivery()
     {
-        Debug.Log($"{npcName}: Delivery Accepted!");
+        Transform destination = M_DeliveryLocationManager.Instance.GetRandomDestination();
 
-        // Add package item to inventory
-        M_InventoryManager.Instance.AddItem(packageItem, 1);
+        M_DeliveryManager.Instance.StartDelivery(deliveryData, destination);
 
-        // Start timer and set destination
-        M_ObjectiveManager.Instance.StartTimer(2f, 0f); // example: 2 minutes
-        M_ObjectiveManager.Instance.SetDestination(testObjectiveTransform);
-
-        // Close dialogue
         Button_Leave();
     }
 
@@ -45,6 +43,7 @@ public class I_NPC : MonoBehaviour, IInteractable
 
         // Re-lock camera
         ThirdPersonCamera.Instance.LockCamera();
+        PlayerPublicRef.Instance.GetComponent<CharacterMotor>().EnableMovement();
 
         // Re-enable interaction ability
         PlayerPublicRef.Instance.gameObject.GetComponent<InteractionAbility>().enabled = true;

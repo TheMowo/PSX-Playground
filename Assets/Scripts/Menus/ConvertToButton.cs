@@ -1,15 +1,22 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider))]
 public class ConvertToButton : MonoBehaviour
 {
-    [SerializeField] RenderTexture rentex;
+    [Header("Navigation")]
+    public ConvertToButton up;
+    public ConvertToButton down;
+    public ConvertToButton left;
+    public ConvertToButton right;
+
+    [SerializeField] private RenderTexture rentex;
 
     [Header("Button Events")]
     [SerializeField] private UnityEvent onClick;
 
-    [Header("Button Colors (Hex)")]
+    [Header("Button Colors")]
     [SerializeField] private GameObject buttonVisualObject;
     [SerializeField] private string normalHex = "#525252";
     [SerializeField] private string hoverHex = "#808080";
@@ -19,89 +26,97 @@ public class ConvertToButton : MonoBehaviour
     private Color hoverColor;
     private Color pressedColor;
 
-    private Renderer _renderer;
-    private bool _isHovering;
+    private Renderer cachedRenderer;
+
+    public bool IsHovered { get; private set; }
 
     private void Awake()
     {
-        _renderer = buttonVisualObject.GetComponent<Renderer>();
+        cachedRenderer = buttonVisualObject.GetComponent<Renderer>();
 
         ColorUtility.TryParseHtmlString(normalHex, out normalColor);
         ColorUtility.TryParseHtmlString(hoverHex, out hoverColor);
         ColorUtility.TryParseHtmlString(pressedHex, out pressedColor);
 
-        if (_renderer != null)
-            _renderer.material.color = normalColor;
+        SetColor(normalColor);
     }
 
     private void Update()
     {
-        HandleHover();
-        HandleClick();
+        HandlePointerHover();
     }
 
-    private void HandleHover()
+    private void HandlePointerHover()
     {
-        if (M_CameraManager.Instance == null) return;
+        if (M_MenuCam.Instance == null)
+            return;
 
-        // Pass Input.mousePosition and the render texture
-        Ray ray = M_MenuCam.Instance.GetActiveCameraRay(Input.mousePosition, rentex);
-        RaycastHit hit;
+        Vector2 pointerPosition = GetPointerPosition();
 
-        Debug.DrawRay(ray.origin, ray.direction * 100f, Color.green);
+        Ray ray = M_MenuCam.Instance.GetActiveCameraRay(pointerPosition, rentex);
 
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Debug.Log($"Ray hit: {hit.collider.gameObject.name} at {hit.point}");
             if (hit.collider.gameObject == gameObject)
             {
-                if (!_isHovering)
+                if (!IsHovered)
                 {
-                    _isHovering = true;
-                    SetColor(hoverColor);
-
-                    if (SoundManager.Instance != null)
-                        SoundManager.Instance.PlayUIHover();
+                    WorldButtonNavigator.Instance?.SelectButton(this);
                 }
-            }
-            else if (_isHovering)
-            {
-                _isHovering = false;
-                SetColor(normalColor);
-            }
-        }
-        else
-        {
-            //Debug.Log("Raycast did not hit anything.");
-            if (_isHovering)
-            {
-                _isHovering = false;
-                SetColor(normalColor);
             }
         }
     }
 
-    private void HandleClick()
+    private Vector2 GetPointerPosition()
     {
-        if (_isHovering && Input.GetMouseButtonDown(0))
-        {
-            SetColor(pressedColor);
+        if (Mouse.current != null)
+            return Mouse.current.position.ReadValue();
 
-            if (SoundManager.Instance != null)
-                SoundManager.Instance.PlayUIClick();
+        return Vector2.zero;
+    }
 
-            onClick.Invoke();
-        }
+    public void HandleSelect()
+    {
+        if (IsHovered)
+            return;
 
-        if (_isHovering && Input.GetMouseButtonUp(0))
-        {
+        IsHovered = true;
+
+        SetColor(hoverColor);
+
+        SoundManager.Instance?.PlayUIHover();
+    }
+
+    public void HandleDeselect()
+    {
+        if (!IsHovered)
+            return;
+
+        IsHovered = false;
+
+        SetColor(normalColor);
+    }
+
+    public void HandlePress()
+    {
+        SetColor(pressedColor);
+
+        SoundManager.Instance?.PlayUIClick();
+
+        onClick?.Invoke();
+    }
+
+    public void HandleRelease()
+    {
+        if (IsHovered)
             SetColor(hoverColor);
-        }
+        else
+            SetColor(normalColor);
     }
 
     private void SetColor(Color color)
     {
-        if (_renderer != null)
-            _renderer.material.color = color;
+        if (cachedRenderer != null)
+            cachedRenderer.material.color = color;
     }
 }

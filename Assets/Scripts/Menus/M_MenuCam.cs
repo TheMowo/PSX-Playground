@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine.Events;
 
-public class M_MenuCam : MonoBehaviour
+public class M_MenuCam : MonoBehaviour // Menu replacement of CameraManager script
 {
     public static M_MenuCam Instance { get; private set; }
 
