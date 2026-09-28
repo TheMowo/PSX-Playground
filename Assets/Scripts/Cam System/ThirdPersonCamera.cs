@@ -26,11 +26,14 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-
         LockCamera();
 
         UpdateDebugText();
+    }
+
+    private void Start()
+    {
+        Instance = this;
     }
 
     void Update()

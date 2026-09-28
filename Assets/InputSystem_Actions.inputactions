@@ -37,7 +37,7 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "Hold",
                     "initialStateCheck": false
@@ -106,9 +106,27 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Throw",
+                    "type": "Button",
+                    "id": "a0658d44-7813-483f-ab5a-c1b7d9cc1691",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Pause",
                     "type": "Button",
                     "id": "b812a44b-1d72-469c-b1c1-8e5a418c440a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Alt Attack",
+                    "type": "Button",
+                    "id": "62493210-9edf-49ed-b6c6-46f4e39ed101",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -503,17 +521,6 @@
                 },
                 {
                     "name": "",
-                    "id": "3745efbd-f03a-4541-894f-bdcb3a33dd78",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "6938e980-5436-4280-97bc-7267801ecddf",
                     "path": "<Keyboard>/shift",
                     "interactions": "",
@@ -548,11 +555,44 @@
                 {
                     "name": "",
                     "id": "755d9eda-07dd-45b1-8635-92b52b98b620",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slide",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dfaaf2f4-ff17-4dff-9fbe-bf41664a6003",
                     "path": "<Keyboard>/alt",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Slide",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d309b043-5055-499c-b62b-068b07ac94ad",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "82d31ba6-2e96-47b9-9107-30403182624a",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Alt Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

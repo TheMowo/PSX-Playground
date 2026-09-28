@@ -14,6 +14,7 @@ public class M_DeliveryManager : MonoBehaviour
     // UI
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI distanceText;
+    [SerializeField] private TextMeshProUGUI statusText;
 
     // Data
     private ActiveDelivery activeDelivery;
@@ -31,7 +32,12 @@ public class M_DeliveryManager : MonoBehaviour
     private void Update()
     {
         if (activeDelivery == null)
+        {
+            statusText.text = string.Empty;
             return;
+        }
+
+        statusText.text = "Holding Package";
 
         UpdateDistanceUI();
 
@@ -111,6 +117,8 @@ public class M_DeliveryManager : MonoBehaviour
         OnDeliveryCompleted?.Invoke(reward);
 
         EndDelivery();
+
+        statusText.text = "Holding Package";
     }
 
     public void CancelDelivery()
@@ -166,7 +174,9 @@ public class M_DeliveryManager : MonoBehaviour
     private void UpdateUI()
     {
         if (activeDelivery == null)
+        {
             return;
+        }
 
         if (!activeDelivery.IsOvertime)
         {

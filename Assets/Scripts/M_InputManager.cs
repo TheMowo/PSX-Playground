@@ -14,6 +14,8 @@ public class M_InputManager : MonoBehaviour
     public bool CrouchHeld { get; private set; }
     public bool SlideHeld { get; private set; }
 
+    public bool ThrowPressed { get; private set; }
+
 
     // UI Navigation
     public Vector2 NavigateInput { get; private set; }
@@ -66,6 +68,9 @@ public class M_InputManager : MonoBehaviour
         controls.Player.Slide.canceled += ctx =>
             SlideHeld = false;
 
+        controls.Player.Throw.performed += ctx =>
+            ThrowPressed = true;
+
         // UI
         controls.UI.Navigate.performed += ctx =>
             NavigateInput = ctx.ReadValue<Vector2>();
@@ -89,6 +94,7 @@ public class M_InputManager : MonoBehaviour
     {
         JumpPressed = false;
         DashPressed = false;
+        ThrowPressed = false;
 
         SubmitPressed = false;
         CancelPressed = false;

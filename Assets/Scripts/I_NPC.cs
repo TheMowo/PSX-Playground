@@ -21,7 +21,7 @@ public class I_NPC : MonoBehaviour, IInteractable
         dialogueBox.SetActive(true);
 
         // Lock camera (so player can’t move view during dialogue)
-        ThirdPersonCamera.Instance.UnlockCamera();
+        FirstPersonCamera.Instance.UnlockCamera();
         PlayerPublicRef.Instance.GetComponent<CharacterMotor>().DisableMovement();
 
         // Disable player interaction ability while dialogue is open
@@ -42,7 +42,7 @@ public class I_NPC : MonoBehaviour, IInteractable
         dialogueBox?.SetActive(false);
 
         // Re-lock camera
-        ThirdPersonCamera.Instance.LockCamera();
+        FirstPersonCamera.Instance.LockCamera();
         PlayerPublicRef.Instance.GetComponent<CharacterMotor>().EnableMovement();
 
         // Re-enable interaction ability
