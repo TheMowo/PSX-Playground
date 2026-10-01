@@ -52,6 +52,28 @@ public class M_MenuCam : MonoBehaviour // Menu replacement of CameraManager scri
         }
     }
 
+    private void Update()
+    {
+        Ray ray = M_MenuCam.Instance.GetActiveCameraRay(Input.mousePosition);
+
+        Debug.DrawRay(
+            ray.origin,
+            ray.direction * 100f,
+            Color.green
+        );
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        {
+            Debug.DrawLine(
+                ray.origin,
+                hit.point,
+                Color.yellow
+            );
+
+            Debug.Log($"Hit: {hit.collider.name}");
+        }
+    }
+
     public bool IsActiveCamera(CinemachineCamera cam) => cam == _activeCamera;
 
     public void SwitchCamera(CinemachineCamera newCamera)

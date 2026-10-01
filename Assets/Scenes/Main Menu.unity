@@ -6549,7 +6549,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &629695631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6566,7 +6566,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 255
+    m_Bits: 511
 --- !u!114 &629695632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17514,7 +17514,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 127
+    m_Bits: 0
 --- !u!114 &1795684635
 MonoBehaviour:
   m_ObjectHideFlags: 0

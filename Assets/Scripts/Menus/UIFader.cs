@@ -91,8 +91,7 @@ public class UIFader : MonoBehaviour
             yield return null;
         }
         canvasGroup.alpha = 1f;
-        new WaitForSeconds(3f);
-        StartCoroutine(FadeIn());
+        Application.Quit();
     }
 
     public IEnumerator FadeAndLoadScene(string sceneName)

@@ -7,122 +7,85 @@ public class TransitionController : MonoBehaviour
 {
     [Header("Transition UI")]
     [SerializeField] private Image transitionImage;
-
-    [SerializeField]
-    private float duration = 1f;
+    [SerializeField] private float duration = 1f;
 
     [Header("Scene Loading")]
-    [SerializeField]
-    private bool useAsyncSceneLoading = true;
+    [SerializeField] private bool useAsyncSceneLoading = true;
 
     private Material transitionMaterial;
-
     private Coroutine transitionCoroutine;
 
-    static public TransitionController Instance { get; private set; }
+    private bool isTransitioning;
+    private bool isLoadingScene;
+
+    public bool IsTransitioning => isTransitioning;
+    public bool IsLoadingScene => isLoadingScene;
+
+    public static TransitionController Instance { get; private set; }
 
     private void Awake()
     {
-        transitionImage.gameObject.SetActive(false);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
 
         if (transitionImage == null)
         {
-            Debug.LogError(
-                "TransitionController: " +
-                "No Transition Image has been assigned."
-            );
-
+            Debug.LogError("TransitionController: No Transition Image has been assigned.");
             return;
         }
 
-        // Create a unique runtime material instance.
-        transitionMaterial =
-            new Material(
-                transitionImage.material
-            );
+        transitionImage.gameObject.SetActive(false);
+        transitionImage.raycastTarget = true;
 
-        transitionMaterial.name =
-            "Transition Runtime Material";
+        transitionMaterial = new Material(transitionImage.material);
+        transitionMaterial.name = "Transition Runtime Material";
 
-        transitionImage.material =
-            transitionMaterial;
+        transitionImage.material = transitionMaterial;
 
-        // Start fully transparent/open.
+        // Start fully open.
         SetCutoff(1f);
     }
-
-
 
     private void OnDestroy()
     {
         if (transitionMaterial != null)
-        {
             Destroy(transitionMaterial);
-        }
     }
-
 
     // =====================================================================
     // PUBLIC API
     // =====================================================================
 
-    /// <summary>
-    /// Plays the transition from the visible game
-    /// to a fully covered screen.
-    /// </summary>
     public void PlayTransition()
     {
-        StartTransition(FadeOutInRoutine());
+        if (isTransitioning)
+            return;
+
+        StartTransition(FadeOutRoutine());
     }
 
-    private IEnumerator FadeOutInRoutine()
+    public void LoadSceneWithTransition(string sceneName)
     {
-        transitionImage.gameObject.SetActive(true);
+        if (isTransitioning || isLoadingScene)
+            return;
 
-        // Fade out (screen covered)
-        yield return AnimateCutoff(0f, 1f);
-
-        // Wait 3 seconds fully covered
-        yield return new WaitForSecondsRealtime(3f);
-
-        // Fade back in (screen revealed)
-        yield return AnimateCutoff(1f, 0f);
-
-        transitionCoroutine = null;
-
-        transitionImage.gameObject.SetActive(false);
+        isLoadingScene = true;
+        StartTransition(LoadSceneRoutine(sceneName));
     }
 
-
-    /// <summary>
-    /// Loads a scene with a transition.
-    ///
-    /// 1. Cover current scene
-    /// 2. Load new scene
-    /// 3. Reveal new scene
-    /// </summary>
-    public void LoadSceneWithTransition(
-        string sceneName)
+    public void LoadSceneWithTransition(int sceneBuildIndex)
     {
-        StartTransition(
-            LoadSceneRoutine(sceneName)
-        );
+        if (isTransitioning || isLoadingScene)
+            return;
+
+        isLoadingScene = true;
+        StartTransition(LoadSceneRoutine(sceneBuildIndex));
     }
-
-
-    /// <summary>
-    /// Same as LoadSceneWithTransition,
-    /// but uses a build index.
-    /// </summary>
-    public void LoadSceneWithTransition(
-        int sceneBuildIndex)
-    {
-        StartTransition(
-            LoadSceneRoutine(sceneBuildIndex)
-        );
-    }
-
 
     // =====================================================================
     // TEST
@@ -130,95 +93,60 @@ public class TransitionController : MonoBehaviour
 
     private void Update()
     {
-        // Temporary test.
-        //
-        // Press T to play the close animation.
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            PlayTransition();
-        }
+        //if (Input.GetKeyDown(KeyCode.T))
+        //    PlayTransition();
     }
-
 
     // =====================================================================
     // TRANSITION CONTROL
     // =====================================================================
 
-    private void StartTransition(
-        IEnumerator routine)
+    private void StartTransition(IEnumerator routine)
     {
         if (transitionMaterial == null)
         {
-            Debug.LogError(
-                "TransitionController: " +
-                "Transition material has not been initialized."
-            );
-
+            Debug.LogError("TransitionController: Transition material has not been initialized.");
             return;
         }
 
-        if (transitionCoroutine != null)
-        {
-            StopCoroutine(
-                transitionCoroutine
-            );
-        }
+        if (isTransitioning)
+            return;
 
-        transitionCoroutine =
-            StartCoroutine(routine);
+        transitionCoroutine = StartCoroutine(TransitionWrapper(routine));
     }
 
+    private IEnumerator TransitionWrapper(IEnumerator routine)
+    {
+        isTransitioning = true;
+
+        transitionImage.gameObject.SetActive(true);
+
+        yield return routine;
+
+        isTransitioning = false;
+        transitionCoroutine = null;
+    }
 
     private void SetCutoff(float value)
     {
         if (transitionMaterial == null)
-        {
             return;
-        }
 
-        transitionMaterial.SetFloat(
-            "_Cutoff",
-            Mathf.Clamp01(value)
-        );
+        transitionMaterial.SetFloat("_Cutoff", Mathf.Clamp01(value));
     }
 
-
-    private IEnumerator AnimateCutoff(
-        float from,
-        float to)
+    private IEnumerator AnimateCutoff(float from, float to)
     {
         float elapsed = 0f;
-
-        float transitionDuration =
-            Mathf.Max(
-                0.0001f,
-                duration
-            );
+        float transitionDuration = Mathf.Max(0.0001f, duration);
 
         while (elapsed < transitionDuration)
         {
-            elapsed +=
-                Time.unscaledDeltaTime;
+            elapsed += Time.unscaledDeltaTime;
 
-            float normalized =
-                Mathf.Clamp01(
-                    elapsed /
-                    transitionDuration
-                );
-
-            float eased =
-                Mathf.SmoothStep(
-                    0f,
-                    1f,
-                    normalized
-                );
-
-            float cutoff =
-                Mathf.Lerp(
-                    from,
-                    to,
-                    eased
-                );
+            float normalized = Mathf.Clamp01(elapsed / transitionDuration);
+            float eased = Mathf.SmoothStep(0f, 1f, normalized);
+            float cutoff = Mathf.Lerp(from, to, eased);
 
             SetCutoff(cutoff);
 
@@ -226,158 +154,94 @@ public class TransitionController : MonoBehaviour
         }
 
         SetCutoff(to);
-
-        transitionCoroutine = null;
     }
 
+    private IEnumerator FadeOutRoutine()
+    {
+        yield return AnimateCutoff(0f, 1f);
+    }
 
     // =====================================================================
     // SCENE LOADING
     // =====================================================================
 
-    private IEnumerator LoadSceneRoutine(
-        string sceneName)
+    private IEnumerator LoadSceneRoutine(string sceneName)
     {
-        // -------------------------------------------------------------
-        // COVER CURRENT SCENE
-        // -------------------------------------------------------------
+        // Cover current scene.
+        yield return AnimateCutoff(0f, 1f);
 
-        yield return AnimateCutoff(
-            1f,
-            0f
-        );
-
-
-        // -------------------------------------------------------------
-        // LOAD NEW SCENE
-        // -------------------------------------------------------------
-
+        // Load new scene.
         if (useAsyncSceneLoading)
         {
-            AsyncOperation operation =
-                SceneManager.LoadSceneAsync(
-                    sceneName
-                );
+            AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
 
             if (operation == null)
             {
-                Debug.LogError(
-                    $"TransitionController: " +
-                    $"Could not load scene '{sceneName}'."
-                );
-
+                Debug.LogError($"TransitionController: Could not load scene '{sceneName}'.");
+                isLoadingScene = false;
                 yield break;
             }
 
-            operation.allowSceneActivation =
-                false;
+            operation.allowSceneActivation = false;
 
             while (operation.progress < 0.9f)
-            {
                 yield return null;
-            }
 
-            operation.allowSceneActivation =
-                true;
+            operation.allowSceneActivation = true;
 
-            // Wait for scene activation.
             while (!operation.isDone)
-            {
                 yield return null;
-            }
         }
         else
         {
-            SceneManager.LoadScene(
-                sceneName
-            );
-
+            M_SceneManager.Instance.LoadScene(sceneName);
             yield return null;
         }
 
+        // Reveal new scene.
+        yield return AnimateCutoff(1f, 0f);
 
-        // -------------------------------------------------------------
-        // REVEAL NEW SCENE
-        // -------------------------------------------------------------
-
-        yield return AnimateCutoff(
-            0f,
-            1f
-        );
+        transitionImage.gameObject.SetActive(false);
+        isLoadingScene = false;
     }
 
-
-    private IEnumerator LoadSceneRoutine(
-        int sceneBuildIndex)
+    private IEnumerator LoadSceneRoutine(int sceneBuildIndex)
     {
-        // -------------------------------------------------------------
-        // COVER CURRENT SCENE
-        // -------------------------------------------------------------
+        // Cover current scene.
+        yield return AnimateCutoff(1f, 0f);
 
-        yield return AnimateCutoff(
-            1f,
-            0f
-        );
-
-
-        // -------------------------------------------------------------
-        // LOAD NEW SCENE
-        // -------------------------------------------------------------
-
+        // Load new scene.
         if (useAsyncSceneLoading)
         {
-            AsyncOperation operation =
-                SceneManager.LoadSceneAsync(
-                    sceneBuildIndex
-                );
+            AsyncOperation operation = SceneManager.LoadSceneAsync(sceneBuildIndex);
 
             if (operation == null)
             {
-                Debug.LogError(
-                    "TransitionController: " +
-                    $"Could not load scene " +
-                    $"with build index " +
-                    $"{sceneBuildIndex}."
-                );
-
+                Debug.LogError($"TransitionController: Could not load scene with build index {sceneBuildIndex}.");
+                isLoadingScene = false;
                 yield break;
             }
 
-            operation.allowSceneActivation =
-                false;
+            operation.allowSceneActivation = false;
 
             while (operation.progress < 0.9f)
-            {
                 yield return null;
-            }
 
-            operation.allowSceneActivation =
-                true;
+            operation.allowSceneActivation = true;
 
             while (!operation.isDone)
-            {
                 yield return null;
-            }
         }
         else
         {
-            SceneManager.LoadScene(
-                sceneBuildIndex
-            );
-
+            M_SceneManager.Instance.LoadScene(sceneBuildIndex);
             yield return null;
         }
 
+        // Reveal new scene.
+        yield return AnimateCutoff(0f, 1f);
 
-        // -------------------------------------------------------------
-        // REVEAL NEW SCENE
-        // -------------------------------------------------------------
-
-        yield return AnimateCutoff(
-            0f,
-            1f
-        );
+        transitionImage.gameObject.SetActive(false);
+        isLoadingScene = false;
     }
-
-
 }

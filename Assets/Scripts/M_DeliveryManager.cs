@@ -98,15 +98,13 @@ public class M_DeliveryManager : MonoBehaviour
         if (!M_InventoryManager.Instance.HasItem(
                 activeDelivery.Data.packageItem))
         {
-            Debug.LogWarning(
-                "Cannot complete delivery. Package missing.");
+            Debug.LogWarning("Cannot complete delivery. Package missing.");
             return;
         }
 
         int reward = CalculateReward();
 
-        Debug.Log(
-            $"Delivery complete. Reward: {reward}");
+        Debug.Log($"Delivery complete. Reward: {reward}");
 
         M_CurrencyManager.Instance.AddMoney(reward);
 

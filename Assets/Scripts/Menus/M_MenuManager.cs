@@ -143,12 +143,12 @@ public class M_MenuManager : MonoBehaviour
     public void Button_NewGame()
     {
         Debug.Log("Pressed New Game Button");
-        TransitionController.Instance.PlayTransition();
+        TransitionController.Instance.LoadSceneWithTransition("Prototype");
     }
     public void Button_Continue()
     {
         Debug.Log("Pressed Continue Button");
-        TransitionController.Instance.PlayTransition();
+        TransitionController.Instance.LoadSceneWithTransition("Prototype");
     }
     public void Button_Exit() 
     { 

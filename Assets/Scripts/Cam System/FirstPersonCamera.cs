@@ -4,11 +4,10 @@ public class FirstPersonCamera : MonoBehaviour
 {
     public static FirstPersonCamera Instance;
 
-    public float mouseSensitivity = 100f;
+    private float mouseSensitivity = 100f;
     public Transform playerBody;
 
-    private float xRotation = 0f;
-
+    private float xRotation;
     private bool cameraLocked = true;
 
     private void Awake()
@@ -20,55 +19,8 @@ public class FirstPersonCamera : MonoBehaviour
     {
         CharacterMotor.Instance.isFirstPerson = true;
 
-        LockCamera();
-    }
-
-    private void Update()
-    {
-        // Toggle lock/unlock
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (cameraLocked)
-                UnlockCamera();
-            else
-                LockCamera();
-        }
-
-        if (!cameraLocked)
-            return;
-
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-        playerBody.Rotate(Vector3.up * mouseX);
-    }
-
-    public void LockCamera()
-    {
         Cursor.lockState = CursorLockMode.Locked;
-
         Cursor.visible = false;
-
-        cameraLocked = true;
-
-        Debug.Log("First Person Camera Locked");
-    }
-
-    public void UnlockCamera()
-    {
-        Cursor.lockState = CursorLockMode.None;
-
-        Cursor.visible = true;
-
-        cameraLocked = false;
-
-        Debug.Log("First Person Camera Unlocked");
     }
 
     private void OnEnable()
@@ -76,12 +28,64 @@ public class FirstPersonCamera : MonoBehaviour
         if (CharacterMotor.Instance != null)
             CharacterMotor.Instance.isFirstPerson = true;
 
-        LockCamera();
+        M_GameManager.PauseStateChanged += HandlePauseStateChanged;
+
+        UnlockCamera();
     }
 
     private void OnDisable()
     {
         if (CharacterMotor.Instance != null)
             CharacterMotor.Instance.isFirstPerson = false;
+
+        M_GameManager.PauseStateChanged -= HandlePauseStateChanged;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            if (cameraLocked)
+                UnlockCamera();
+            else
+                FixCamera();
+        }
+
+        if (cameraLocked)
+            return;
+
+        if (M_InputManager.Instance == null)
+            return;
+
+        Vector2 lookInput = M_InputManager.Instance.LookInput;
+
+        float lookX = lookInput.x * mouseSensitivity * Time.deltaTime;
+        float lookY = lookInput.y * mouseSensitivity * Time.deltaTime;
+
+        xRotation -= lookY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+        if (playerBody != null)
+            playerBody.Rotate(Vector3.up * lookX);
+    }
+
+    private void HandlePauseStateChanged(bool paused)
+    {
+        if (paused)
+            FixCamera();
+        else
+            UnlockCamera();
+    }
+
+    public void FixCamera()
+    {
+        cameraLocked = true;
+    }
+
+    public void UnlockCamera()
+    {
+        cameraLocked = false;
     }
 }
