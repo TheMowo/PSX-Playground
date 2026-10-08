@@ -25,12 +25,17 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        if (CharacterMotor.Instance != null)
-            CharacterMotor.Instance.isFirstPerson = true;
-
         M_GameManager.PauseStateChanged += HandlePauseStateChanged;
 
-        UnlockCamera();
+        if (M_GameManager.Instance != null &&
+            M_GameManager.Instance.IsPaused)
+        {
+            FixCamera();
+        }
+        else
+        {
+            UnlockCamera();
+        }
     }
 
     private void OnDisable()

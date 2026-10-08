@@ -24,10 +24,7 @@ public class M_GameManager : MonoBehaviour
 
     public bool IsPaused => isPaused;
 
-    public bool IsGameplayBlocked =>
-        IsPaused ||
-        (TransitionController.Instance != null &&
-         TransitionController.Instance.IsTransitioning);
+    public bool IsGameplayBlocked => IsPaused || (TransitionController.Instance != null && TransitionController.Instance.IsTransitioning);
 
     private void Awake()
     {

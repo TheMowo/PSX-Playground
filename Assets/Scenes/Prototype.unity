@@ -15662,7 +15662,7 @@ GameObject:
   - component: {fileID: 805717047}
   - component: {fileID: 805717046}
   m_Layer: 0
-  m_Name: Objective Manager
+  m_Name: M_ObjectiveManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17925,7 +17925,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 90
@@ -17949,10 +17949,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.71
-  m_Height: 3.32
+  m_Radius: 0.46
+  m_Height: 2.54
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: -0.03, y: -0.02, z: 0}
 --- !u!114 &926947082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20566,7 +20566,7 @@ GameObject:
   - component: {fileID: 1012322779}
   - component: {fileID: 1012322778}
   m_Layer: 0
-  m_Name: Currency Manager
+  m_Name: M_CurrencyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23071,7 +23071,7 @@ GameObject:
   - component: {fileID: 1174443027}
   - component: {fileID: 1174443026}
   m_Layer: 0
-  m_Name: Pause Menu Manager
+  m_Name: M_PauseMenuManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26830,6 +26830,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1194260124}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!1 &1288222292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1288222294}
+  - component: {fileID: 1288222293}
+  m_Layer: 0
+  m_Name: M_CursorManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1288222293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288222292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567924b396f3bdf499c4056824e01ae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::M_CursorManager
+--- !u!4 &1288222294
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288222292}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.49052, y: -0.70732, z: 4.99273}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301500940
 GameObject:
   m_ObjectHideFlags: 0
@@ -28331,7 +28375,7 @@ GameObject:
   - component: {fileID: 1376427982}
   - component: {fileID: 1376427981}
   m_Layer: 0
-  m_Name: Scene Manager
+  m_Name: M_SceneManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29230,7 +29274,7 @@ GameObject:
   - component: {fileID: 1412911826}
   - component: {fileID: 1412911828}
   m_Layer: 0
-  m_Name: Camera Manager
+  m_Name: M_CameraManager
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31255,7 +31299,7 @@ GameObject:
   - component: {fileID: 1551629747}
   - component: {fileID: 1551629746}
   m_Layer: 0
-  m_Name: Delivery Manager
+  m_Name: M_DeliveryManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37625,7 +37669,7 @@ GameObject:
   - component: {fileID: 1846743547}
   - component: {fileID: 1846743546}
   m_Layer: 0
-  m_Name: Game Manager
+  m_Name: M_GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41552,7 +41596,7 @@ GameObject:
   - component: {fileID: 2037634625}
   - component: {fileID: 2037634624}
   m_Layer: 0
-  m_Name: Dialogue Manager
+  m_Name: M_DialogueManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43144,7 +43188,7 @@ GameObject:
   - component: {fileID: 2100576555}
   - component: {fileID: 2100576556}
   m_Layer: 0
-  m_Name: Input Manager
+  m_Name: M_InputManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43993,13 +44037,14 @@ SceneRoots:
   - {fileID: 2099980966}
   - {fileID: 342644866}
   - {fileID: 1191979095}
+  - {fileID: 2100576555}
   - {fileID: 2037634625}
+  - {fileID: 1288222294}
   - {fileID: 1174443027}
   - {fileID: 1846743547}
   - {fileID: 1376427982}
   - {fileID: 1412911821}
   - {fileID: 805717047}
-  - {fileID: 2100576555}
   - {fileID: 1551629748}
   - {fileID: 1012322779}
   - {fileID: 544474944}

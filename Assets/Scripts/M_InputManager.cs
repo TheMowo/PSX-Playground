@@ -180,7 +180,11 @@ public class M_InputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions,
         SetDevice(context);
 
         if (context.performed)
+        {
+            Debug.Log("Pause Action Performed.");
             PausePressed?.Invoke();
+        }
+            
     }
 
     public void OnSprint(InputAction.CallbackContext context) { }

@@ -8,9 +8,7 @@ public class M_DialogueManager : MonoBehaviour
 
     private I_NPC currentNPC;
 
-    public bool IsDialogueOpen =>
-        dialogueBox != null &&
-        dialogueBox.activeSelf;
+    public bool IsDialogueOpen => dialogueBox != null && dialogueBox.activeSelf;
 
     private void Awake()
     {

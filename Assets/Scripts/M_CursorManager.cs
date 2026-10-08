@@ -1,9 +1,8 @@
-using MoreMountains.Tools;
 using UnityEngine;
 
 public class M_CursorManager : MonoBehaviour
 {
-    M_CursorManager Instance;
+    public static M_CursorManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -14,12 +13,19 @@ public class M_CursorManager : MonoBehaviour
         }
 
         Instance = this;
+
         DontDestroyOnLoad(gameObject);
     }
 
     private void OnEnable()
     {
         M_GameManager.PauseStateChanged += HandlePauseStateChanged;
+    }
+
+    private void Start()
+    {
+        if (M_GameManager.Instance != null)
+            HandlePauseStateChanged(M_GameManager.Instance.IsPaused);
     }
 
     private void OnDisable()
@@ -29,6 +35,8 @@ public class M_CursorManager : MonoBehaviour
 
     private void HandlePauseStateChanged(bool paused)
     {
+        Debug.Log($"Cursor state changed. Paused = {paused}");
+
         Cursor.lockState =
             paused
                 ? CursorLockMode.None
