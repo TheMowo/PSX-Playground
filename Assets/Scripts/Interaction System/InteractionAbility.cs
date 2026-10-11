@@ -3,9 +3,13 @@ using UnityEngine;
 
 public class InteractionAbility : MonoBehaviour
 {
-    // For code pretaining to player interaction ability
+    // For code pertaining to player interaction ability
 
     [SerializeField] private float interactDistance = 15f;
+
+    [Title("Raycast")]
+    [SerializeField] private LayerMask interactableLayers = -1;
+    [SerializeField] private LayerMask ignoreLayers;
 
     private UIManager uiController; // reference to UI controller for interaction highlight UI
     private Collider currentTargetCol;
@@ -28,35 +32,52 @@ public class InteractionAbility : MonoBehaviour
         HandleDistanceCheck(currentTargetCol);
         HandleInteractionCheck();
 
-        //if (currentTargetBoxCol != null)
+        //if (currentTargetCol != null)
         //{
-        //    Debug.Log($"currentTargetBoxCol found: {currentTargetBoxCol.gameObject.name}");
+        //    Debug.Log($"currentTargetCol found: {currentTargetCol.gameObject.name}");
         //}
     }
 
     private void HandleRaycast()
     {
-        var ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        var ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
 
         bool isHitting = false;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, LayerMask.GetMask("Interactable")))
+        RaycastHit[] hits = Physics.RaycastAll(ray, interactDistance);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        currentTargetCol = null;
+        currentTargetInteractable = null;
+
+        foreach (RaycastHit hit in hits)
         {
+            int hitLayerMask = 1 << hit.collider.gameObject.layer;
+
+            // Skip ignored layers and continue checking further hits.
+            if ((ignoreLayers & hitLayerMask) != 0)
+            {
+                continue;
+            }
+
+            // Skip anything not on an interactable layer.
+            if ((interactableLayers & hitLayerMask) == 0)
+            {
+                continue;
+            }
+
             Debug.DrawLine(ray.origin, hit.point, Color.green);
 
-            if (hit.collider.gameObject.TryGetComponent<IInteractable>(out var interactable))
+            if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
             {
                 currentTargetCol = hit.collider;
                 currentTargetInteractable = interactable;
                 isHitting = true;
+
                 Debug.Log("Raycast hit interactable");
+                break;
             }
-        }
-        else
-        {
-            currentTargetCol = null;
-            currentTargetInteractable = null;
         }
 
         if (isHitting)
@@ -67,12 +88,10 @@ public class InteractionAbility : MonoBehaviour
         if (isHitting && !wasHitting)
         {
             uiController.ToggleCornerMarkers(true);
-            //Debug.Log("Started hitting interactable");
         }
         else if (!isHitting && wasHitting)
         {
             uiController.ToggleCornerMarkers(false);
-            //Debug.Log("Stopped hitting interactable");
         }
 
         wasHitting = isHitting;
@@ -80,7 +99,12 @@ public class InteractionAbility : MonoBehaviour
 
     private void HandleDistanceCheck(Collider target)
     {
-        if (target == null) { canInteract = false; return; }
+        if (target == null)
+        {
+            canInteract = false;
+            return;
+        }
+
         canInteract = Vector3.Distance(transform.position, target.transform.position) <= interactDistance;
     }
 
