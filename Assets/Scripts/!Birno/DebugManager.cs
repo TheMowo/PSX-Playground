@@ -17,7 +17,7 @@ namespace Birno
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.T))
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 PlaySquashStretch();
             }
