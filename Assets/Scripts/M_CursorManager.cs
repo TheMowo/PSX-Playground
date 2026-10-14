@@ -35,7 +35,7 @@ public class M_CursorManager : MonoBehaviour
 
     private void HandlePauseStateChanged(bool paused)
     {
-        Debug.Log($"Cursor state changed. Paused = {paused}");
+        //Debug.Log($"Cursor state changed. Paused = {paused}");
 
         Cursor.lockState =
             paused

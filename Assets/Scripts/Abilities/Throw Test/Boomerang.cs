@@ -29,9 +29,7 @@ public class Boomerang : MonoBehaviour
     private ThrowActuator owner;
     private Transform returnTarget;
 
-    public void Initialize(
-        ThrowActuator ownerScript,
-        Vector3 throwDirection)
+    public void Initialize(ThrowActuator ownerScript, Vector3 throwDirection)
     {
         owner = ownerScript;
         returnTarget = ownerScript.transform;
@@ -63,10 +61,7 @@ public class Boomerang : MonoBehaviour
     {
         if (model != null)
         {
-            model.Rotate(
-                Vector3.up,
-                spinSpeed * Time.deltaTime,
-                Space.Self);
+            model.Rotate(Vector3.up, spinSpeed * Time.deltaTime, Space.Self);
         }
     }
 
@@ -101,6 +96,12 @@ public class Boomerang : MonoBehaviour
 
     private void HandleHit(GameObject obj)
     {
+        if(obj.TryGetComponent<IDamageable>(out IDamageable damageable))
+        {
+            damageable.TakeDamage(damage);
+            Debug.Log($"{name} dealt {damage} damage to {damageable}");
+        }
+
         if (currentState == State.Returning)
             return;
 

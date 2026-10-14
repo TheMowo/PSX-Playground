@@ -4415,7 +4415,7 @@ GameObject:
   - component: {fileID: 335634979}
   - component: {fileID: 335634980}
   - component: {fileID: 335634981}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Vision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4457,7 +4457,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 3.58
+  m_Radius: 8
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &335634981
 MonoBehaviour:
@@ -4496,6 +4496,7 @@ GameObject:
   - component: {fileID: 342644875}
   - component: {fileID: 342644876}
   - component: {fileID: 342644878}
+  - component: {fileID: 342644879}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -4766,6 +4767,19 @@ MonoBehaviour:
   boomerangPrefab: {fileID: 8234185174019567904, guid: d9eed34d5fb5ec14fa9e1eab7e560230, type: 3}
   throwPoint: {fileID: 1238344499}
   heldWeaponModel: {fileID: 1095874743}
+--- !u!114 &342644879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342644862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89c8d1c0a34f02b4bb6f77667f79dcba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  maxHealth: 100
 --- !u!114 &342731118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16963,7 +16977,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 855658117}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Eye Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36410,44 +36424,20 @@ GameObject:
   - component: {fileID: 1725369604}
   - component: {fileID: 1725369603}
   - component: {fileID: 1725369602}
-  - component: {fileID: 1725369601}
+  - component: {fileID: 1725369612}
   - component: {fileID: 1725369609}
   - component: {fileID: 1725369608}
   - component: {fileID: 1725369607}
   - component: {fileID: 1725369606}
   - component: {fileID: 1725369610}
-  m_Layer: 0
-  m_Name: Enemy
+  - component: {fileID: 1725369611}
+  m_Layer: 8
+  m_Name: Filth Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!143 &1725369601
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725369600}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!136 &1725369602
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -36537,11 +36527,12 @@ Transform:
   m_GameObject: {fileID: 1725369600}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.1, y: 1.06, z: 9.98}
+  m_LocalPosition: {x: 2.1, y: 1.06, z: 11.98}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 335634979}
+  - {fileID: 2086309562}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1725369606
@@ -36556,6 +36547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9046c89e458c3fe41b3366ff5ed9e5a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  stoppingDistance: 4
 --- !u!114 &1725369607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36568,6 +36560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b3f92432a7855a4a99bf67caa97112c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  attackRange: 5
 --- !u!114 &1725369608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36581,20 +36574,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   CurrentTarget: {fileID: 0}
-  HasTarget: 0
   HasSeenTarget: 0
-  LastSeenPosition: {x: 0, y: 0, z: 0}
-  LastSeenTime: 0
   CanSeeTarget: 0
-  DistanceToTarget: 0
-  CurrentDestination: {x: 0, y: 0, z: 0}
-  HasPath: 0
-  AttackReady: 0
-  IsAttacking: 0
-  LastAttackTime: 0
-  IsAlive: 1
+  LastSeenPosition: {x: 0, y: 0, z: 0}
   IsAggro: 0
-  IsStunned: 0
+  IsAttacking: 0
+  AttackOnCooldown: 0
+  WantsToAttack: 0
+  HasDealtAttackDamage: 0
+  IsAlive: 0
+  CurrentDestination: {x: 0, y: 0, z: 0}
 --- !u!195 &1725369609
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -36629,6 +36618,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c367417d64d4a40833f8de296f9f94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+--- !u!114 &1725369611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725369600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2183487004e709949a0ded6d15eba945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  attackCooldown: 1.5
+  attackHitbox: {fileID: 2086309561}
+  lungeForce: 12
+  lungeUpwardForce: 2
+  windupTime: 0.15
+  recoveryTime: 0.5
+--- !u!54 &1725369612
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725369600}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1735634068
 GameObject:
   m_ObjectHideFlags: 0
@@ -43153,6 +43187,73 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073467819}
   m_CullTransparentMesh: 1
+--- !u!1 &2086309561
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2086309562}
+  - component: {fileID: 2086309563}
+  - component: {fileID: 2086309564}
+  m_Layer: 8
+  m_Name: FilthAttackHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2086309562
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086309561}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.35}
+  m_LocalScale: {x: 1, y: 1.9424, z: 1.400203}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1725369605}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2086309563
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086309561}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2086309564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086309561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebf83462c9022744a28e2232db07a29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  damage: 15
 --- !u!1 &2088270872
 GameObject:
   m_ObjectHideFlags: 0

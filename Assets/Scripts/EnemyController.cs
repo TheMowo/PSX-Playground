@@ -5,18 +5,6 @@ using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour // 
 {
-    // State Machine
-
-
-    /// Perception System
-    // Vision
-    // Player Activity (movement, gun firing, etc.)
-
-    // Memory:
-    // Last Player Position
-    // Last Seen Time
-    // Threat Level
-
     /// Navigation System
     // Current Path
     // Current Node
@@ -33,12 +21,10 @@ public class EnemyController : MonoBehaviour //
     // Teleporting
 
     /// Combat Decision System
-
+    // TLDR the brain
 
     /// Attack Scheduler
-    // 
-
-    /// Positining System
+    // Needed to prevent overwhelming enemy attacks --> enemies attack in sequence
 
     //////////////////////////////////////////////////////////////////
 
@@ -61,31 +47,24 @@ public class EnemyController : MonoBehaviour //
     private int atkRange = 5;
     private float atkRate = 0.5f;
 
-    private int currentHealth = 1;
-
-    private bool isAggro;
-
     [Header("Navigation Setup")]
-    private int stoppingDistance = 4;
-    private float loseVisionTimeWindow = 2;
+    [SerializeField] private int stoppingDistance = 4;
 
     private float pathRefreshRate = 0.15f;
     private float nextPathUpdate;
 
     [Header("Component References")]
+    private EnemyBrain brain;
     private EnemyBlackboard blackboard;
-    private NavMeshAgent agent;
 
-    [Header("Public References")]
-    public float LoseVisionTimeWindow => loseVisionTimeWindow;
-    public bool IsAggro => isAggro;
+    private NavMeshAgent agent;
 
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-
-        currentHealth = health;
+        blackboard = GetComponent<EnemyBlackboard>();
+        brain = GetComponent<EnemyBrain>();
     }
 
     private void Start()
@@ -95,19 +74,36 @@ public class EnemyController : MonoBehaviour //
 
     private void FixedUpdate()
     {
-        if (isAggro)
-            ChasePlayer();
+        switch (brain.CurrentState)
+        {
+            case EnemyState.Dormant:
+                //HandleDormant();
+                break;
 
+            case EnemyState.Chase:
+                HandleChase();
+                break;
+
+            case EnemyState.Attack:
+                //HandleAttack();
+                break;
+
+            case EnemyState.Dead:
+                //HandleDead();
+                break;
+        }
     }
 
     private void SetupAgent()
     {
-        agent.speed = speed;
+        agent.speed = 8f;
+        agent.acceleration = 40f;
+        agent.angularSpeed = 720f;
         agent.stoppingDistance = stoppingDistance;
         agent.autoTraverseOffMeshLink = true;
     }
 
-    private void ChasePlayer()
+    private void HandleChase()
     {
         Transform target = PlayerPublicRef.Instance.transform;
 
@@ -135,16 +131,5 @@ public class EnemyController : MonoBehaviour //
         {
             agent.isStopped = false;
         }
-    }
-
-    private void InitAttack()
-    {
-
-    }
-
-    public void SetAggro(bool aggro)
-    {
-        Debug.Log($"Enemy {gameObject.name} isAggro set to {aggro}");
-        isAggro = aggro;
     }
 }

@@ -9,14 +9,9 @@ public class EnemyVision : MonoBehaviour
     [SerializeField] private float sightCheckRate = 0.1f;
 
     private EnemyController controller;
-    //private PlayerPublicRef currentTarget;
     private Collider targetCollider;
 
-    private float waitTime;
     private float nextSightCheck;
-    //private float lastSeenTime;
-
-    //private bool hasSeenTarget;
 
     private void Awake()
     {
@@ -34,31 +29,21 @@ public class EnemyVision : MonoBehaviour
         if (blackboard == null)
         {
             Debug.LogError($"{name}: EnemyBlackBoard not found.");
+            enabled = false;
+            return;
         }
-
 
         eyePoint ??= transform;
 
-        controller.SetAggro(false);
-
-        waitTime = controller.LoseVisionTimeWindow;
+        blackboard.CanSeeTarget = false;
     }
 
     private void Update()
     {
-        if (controller.IsAggro && blackboard.HasSeenTarget && Time.time - blackboard.LastSeenTime > waitTime)
-        {
-            controller.SetAggro(false);
-
-            blackboard.CurrentTarget = null;
-            blackboard.HasSeenTarget = false;
-
-            targetCollider = null;
-
+        if (blackboard.CurrentTarget == null)
             return;
-        }
 
-        if (blackboard.CurrentTarget == null || Time.time < nextSightCheck)
+        if (Time.time < nextSightCheck)
             return;
 
         nextSightCheck = Time.time + sightCheckRate;
@@ -71,29 +56,25 @@ public class EnemyVision : MonoBehaviour
         if (!other.TryGetComponent(out PlayerPublicRef player))
             return;
 
+        Debug.Log($"EnemyVision: Detected {other.name}");
+
         blackboard.CurrentTarget = player.transform;
         targetCollider = other;
 
-        controller.SetAggro(true);
-
-        blackboard.HasSeenTarget = false;
+        // Enemy aggroes immediately when player enters detection range.
+        blackboard.IsAggro = true;
 
         CheckLineOfSight();
     }
 
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (!other.TryGetComponent(out PlayerPublicRef player) || player != currentTarget)
-    //        return;
-
-    //    // Intentionally left empty.
-    //    // Enemy remembers the target until the lose-sight timer expires.
-    //}
-
     private void CheckLineOfSight()
     {
+        if (targetCollider == null)
+            return;
+
         Vector3 origin = eyePoint.position;
-        Vector3 targetPos = targetCollider.bounds.center;
+        Vector3 targetPos = blackboard.CurrentTarget.position;
+
         Vector3 dir = targetPos - origin;
 
         float distance = dir.magnitude;
@@ -105,14 +86,17 @@ public class EnemyVision : MonoBehaviour
 
         Debug.DrawRay(origin, dir.normalized * distance, canSeePlayer ? Color.green : Color.red, sightCheckRate);
 
-        if (canSeePlayer)
-        {
-            blackboard.LastSeenPosition = targetCollider.bounds.center;
-            blackboard.LastSeenTime = Time.time;
-        }
-        else return;
+        blackboard.CanSeeTarget = canSeePlayer;
+
+        if (!canSeePlayer)
+            return;
+
+        // Permanent aggro once LOS is achieved.
+        blackboard.IsAggro = true;
 
         blackboard.HasSeenTarget = true;
-        blackboard.LastSeenTime = Time.time;
+
+        blackboard.LastSeenPosition =
+            blackboard.CurrentTarget.position;
     }
 }

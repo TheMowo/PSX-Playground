@@ -9,11 +9,16 @@ public class EnemyBlackboard : MonoBehaviour // Stores Data
     public bool CanSeeTarget;
 
     public Vector3 LastSeenPosition;
-    public float LastSeenTime;
 
     [Header("Combat")]
-    public bool IsAggro;
+    public bool IsAggro = false;
     public bool IsAttacking;
+    public bool AttackOnCooldown;
+    public bool WantsToAttack;
+
+    public bool HasDealtAttackDamage;
+
+    public bool IsAlive = true;
 
     [Header("Navigation")]
     public Vector3 CurrentDestination;

@@ -32,18 +32,18 @@ public class M_PauseMenuManager : MonoBehaviour
     {
         if (M_GameManager.Instance.HasPauseReason(M_GameManager.PauseReason.Dialogue))
         {
-            Debug.Log("Pause attempted, but PauseReason.Dialogue was present.");
+            //Debug.Log("Pause attempted, but PauseReason.Dialogue was present.");
             return;
         }
 
         if (M_GameManager.Instance.HasPauseReason(M_GameManager.PauseReason.PauseMenu))
         {
-            Debug.Log("Pause Menu Close prompted");
+            //Debug.Log("Pause Menu Close prompted");
             ClosePauseMenu();
         }
         else
         {
-            Debug.Log("Pause Menu Open prompted");
+            //Debug.Log("Pause Menu Open prompted");
             OpenPauseMenu();
         }
     }
