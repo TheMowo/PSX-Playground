@@ -16,20 +16,32 @@ public class FilthAttack : MonoBehaviour
     [SerializeField] private float windupTime = 0.25f;
     [SerializeField] private float recoveryTime = 0.5f;
 
+    private EnemyBrain brain;
     private EnemyBlackboard blackboard;
     private NavMeshAgent agent;
     private Rigidbody rb;
 
     private void Awake()
     {
+        brain = GetComponent<EnemyBrain>();
         blackboard = GetComponent<EnemyBlackboard>();
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (!blackboard.WantsToAttack)
+        brain.OnStateChanged += HandleStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        brain.OnStateChanged -= HandleStateChanged;
+    }
+
+    private void HandleStateChanged(EnemyState state)
+    {
+        if (state != EnemyState.Attack)
             return;
 
         if (blackboard.IsAttacking)
@@ -70,7 +82,9 @@ public class FilthAttack : MonoBehaviour
         Vector3 launchDirection =
             (targetPosition - transform.position).normalized;
 
-        rb.linearVelocity = launchDirection * lungeForce + Vector3.up * lungeUpwardForce;
+        rb.linearVelocity =
+            launchDirection * lungeForce +
+            Vector3.up * lungeUpwardForce;
 
         yield return new WaitForSeconds(0.15f);
 
@@ -78,7 +92,11 @@ public class FilthAttack : MonoBehaviour
 
         yield return new WaitForSeconds(recoveryTime);
 
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
         agent.enabled = true;
+        agent.Warp(transform.position);
         agent.isStopped = false;
 
         blackboard.IsAttacking = false;

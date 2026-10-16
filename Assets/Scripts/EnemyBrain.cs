@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum EnemyState
@@ -11,6 +12,8 @@ public enum EnemyState
 
 public class EnemyBrain : MonoBehaviour
 {
+    public event Action<EnemyState> OnStateChanged;
+
     [SerializeField] private float attackRange = 3f;
 
     private EnemyBlackboard blackboard;
@@ -27,7 +30,7 @@ public class EnemyBrain : MonoBehaviour
     }
 
     private void Update()
-    { 
+    {
         EvaluateState();
     }
 
@@ -59,14 +62,16 @@ public class EnemyBrain : MonoBehaviour
             return;
         }
 
-        float distance = Vector3.Distance(transform.position, blackboard.LastSeenPosition);
+        float distance = Vector3.Distance(
+            transform.position,
+            blackboard.LastSeenPosition);
 
-        bool canAttack = distance <= attackRange && !blackboard.AttackOnCooldown;
+        bool canAttack =
+            distance <= attackRange &&
+            !blackboard.AttackOnCooldown;
 
         if (canAttack)
         {
-            blackboard.WantsToAttack = true;
-
             SetState(EnemyState.Attack);
             return;
         }
@@ -82,5 +87,7 @@ public class EnemyBrain : MonoBehaviour
         currentState = newState;
 
         Debug.Log($"{name} -> {currentState}");
+
+        OnStateChanged?.Invoke(currentState);
     }
 }

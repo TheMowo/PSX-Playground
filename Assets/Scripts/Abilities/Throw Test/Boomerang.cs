@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Boomerang : MonoBehaviour
@@ -28,6 +29,8 @@ public class Boomerang : MonoBehaviour
     private Vector3 targetPosition;
     private ThrowActuator owner;
     private Transform returnTarget;
+
+    private readonly HashSet<IDamageable> hitTargets = new();
 
     public void Initialize(ThrowActuator ownerScript, Vector3 throwDirection)
     {
@@ -60,9 +63,7 @@ public class Boomerang : MonoBehaviour
     private void RotateWeapon()
     {
         if (model != null)
-        {
             model.Rotate(Vector3.up, spinSpeed * Time.deltaTime, Space.Self);
-        }
     }
 
     private void FlyOut()
@@ -73,9 +74,7 @@ public class Boomerang : MonoBehaviour
             travelSpeed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
-        {
             currentState = State.Returning;
-        }
     }
 
     private void ReturnToPlayer()
@@ -85,9 +84,7 @@ public class Boomerang : MonoBehaviour
             returnTarget.position,
             returnSpeed * Time.deltaTime);
 
-        if (Vector3.Distance(
-            transform.position,
-            returnTarget.position) < 1f)
+        if (Vector3.Distance(transform.position, returnTarget.position) < 1f)
         {
             owner.WeaponReturned();
             Destroy(gameObject);
@@ -96,16 +93,28 @@ public class Boomerang : MonoBehaviour
 
     private void HandleHit(GameObject obj)
     {
-        if(obj.TryGetComponent<IDamageable>(out IDamageable damageable))
+        if (obj.TryGetComponent<PlayerPublicRef>(out _))
+            return;
+
+        if (obj.TryGetComponent(out IDamageable damageable))
         {
-            damageable.TakeDamage(damage);
-            Debug.Log($"{name} dealt {damage} damage to {damageable}");
+            if (!hitTargets.Contains(damageable))
+            {
+                hitTargets.Add(damageable);
+
+                damageable.TakeDamage(damage);
+
+                Debug.Log($"{name} dealt {damage} damage to {obj.name}");
+            }
         }
 
         if (currentState == State.Returning)
             return;
 
-        if ((hitLayers.value & (1 << obj.layer)) == 0)
+        bool validHitLayer =
+            (hitLayers.value & (1 << obj.layer)) != 0;
+
+        if (!validHitLayer)
             return;
 
         currentState = State.Returning;
@@ -116,8 +125,9 @@ public class Boomerang : MonoBehaviour
         HandleHit(other.gameObject);
     }
 
-    private void OnCollisionEnter(Collision other)
+    // Remove this if you're exclusively using trigger colliders.
+    private void OnCollisionEnter(Collision collision)
     {
-        HandleHit(other.gameObject);
+        HandleHit(collision.gameObject);
     }
 }

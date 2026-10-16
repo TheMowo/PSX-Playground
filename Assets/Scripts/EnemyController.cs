@@ -56,6 +56,7 @@ public class EnemyController : MonoBehaviour //
     [Header("Component References")]
     private EnemyBrain brain;
     private EnemyBlackboard blackboard;
+    private EnemyState currentState;
 
     private NavMeshAgent agent;
 
@@ -74,23 +75,23 @@ public class EnemyController : MonoBehaviour //
 
     private void FixedUpdate()
     {
-        switch (brain.CurrentState)
+        switch (currentState)
         {
             case EnemyState.Dormant:
-                //HandleDormant();
+                HandleDormant();
                 break;
 
             case EnemyState.Chase:
                 HandleChase();
                 break;
 
-            case EnemyState.Attack:
-                //HandleAttack();
-                break;
+            //case EnemyState.Attack:
+            //    HandleAttack();
+            //    break;
 
-            case EnemyState.Dead:
-                //HandleDead();
-                break;
+            //case EnemyState.Dead:
+            //    HandleDead();
+            //    break;
         }
     }
 
@@ -101,6 +102,11 @@ public class EnemyController : MonoBehaviour //
         agent.angularSpeed = 720f;
         agent.stoppingDistance = stoppingDistance;
         agent.autoTraverseOffMeshLink = true;
+    }
+
+    private void HandleDormant()
+    {
+        agent.isStopped = true;
     }
 
     private void HandleChase()
@@ -131,5 +137,21 @@ public class EnemyController : MonoBehaviour //
         {
             agent.isStopped = false;
         }
+    }
+
+
+    private void OnEnable()
+    {
+        brain.OnStateChanged += HandleStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        brain.OnStateChanged -= HandleStateChanged;
+    }
+
+    private void HandleStateChanged(EnemyState state)
+    {
+        currentState = state;
     }
 }

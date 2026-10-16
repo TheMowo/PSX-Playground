@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour, IDamageable
 {
-    private float baseHealth = 10; // Stored, unchanged
+    private float baseHealth = 50; // Stored, unchanged
     private float currentHealth; // Active health pool
     private float maxHealth; // In the event that an enemy can gain overhealth, use this. (for capping currentHealth & health gains)
 
@@ -25,6 +25,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Death()
     {
-
+        Destroy(this.gameObject);
     }
 }

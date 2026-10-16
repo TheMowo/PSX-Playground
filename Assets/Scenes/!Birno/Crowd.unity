@@ -2055,6 +2055,7 @@ GameObject:
   - component: {fileID: 965354191}
   - component: {fileID: 965354192}
   - component: {fileID: 965354193}
+  - component: {fileID: 965354194}
   m_Layer: 0
   m_Name: Birno
   m_TagString: Untagged
@@ -2203,6 +2204,18 @@ MonoBehaviour:
     m_RotationOrder: 4
   looping: 0
   loopingDelay: 0.5
+--- !u!114 &965354194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 965354190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9e03bcdc3b9344fa9c61945ee812f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1042457264
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,6 +4,9 @@ public class FilthAttackHitbox : MonoBehaviour
 {
     [SerializeField] private int damage = 10;
 
+    [Header("Collision")]
+    [SerializeField] private LayerMask damageableLayers;
+
     private EnemyBlackboard blackboard;
 
     private void Awake()
@@ -19,6 +22,12 @@ public class FilthAttackHitbox : MonoBehaviour
             return;
 
         if (blackboard.HasDealtAttackDamage)
+            return;
+
+        bool validLayer =
+            (damageableLayers.value & (1 << other.gameObject.layer)) != 0;
+
+        if (!validLayer)
             return;
 
         if (!other.TryGetComponent(out IDamageable damageable))
