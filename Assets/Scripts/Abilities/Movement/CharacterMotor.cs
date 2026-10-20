@@ -500,4 +500,9 @@ public class CharacterMotor : MonoBehaviour
     }
 
     #endregion
+
+    public void Launch(float verticalVelocity)
+    {
+        velocity.y = verticalVelocity;
+    }
 }
