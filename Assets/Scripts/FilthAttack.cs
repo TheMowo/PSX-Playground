@@ -55,8 +55,6 @@ public class FilthAttack : MonoBehaviour
 
     private IEnumerator AttackRoutine()
     {
-        Debug.Log("FILTH ATTACK START");
-
         blackboard.IsAttacking = true;
         blackboard.AttackOnCooldown = true;
         blackboard.HasDealtAttackDamage = false;

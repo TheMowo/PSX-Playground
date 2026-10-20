@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6372393086809073353}
   - component: {fileID: 4975919908674111229}
   - component: {fileID: 4166934797560449603}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Vision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -334,7 +334,7 @@ GameObject:
   - component: {fileID: 7141992170867185401}
   - component: {fileID: 7912931841851922102}
   - component: {fileID: 7296836582945267577}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: FilthAttackHitbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,8 +375,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.68, y: 1, z: 1.46}
+  m_Center: {x: 0, y: 0, z: 0.13}
 --- !u!114 &7296836582945267577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +392,7 @@ MonoBehaviour:
   damage: 15
   damageableLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 8
 --- !u!1 &5716019613782467060
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,7 +402,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8518239710032711029}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Eye Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
