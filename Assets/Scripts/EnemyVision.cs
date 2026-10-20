@@ -2,40 +2,28 @@ using UnityEngine;
 
 public class EnemyVision : MonoBehaviour
 {
-    private EnemyBlackboard blackboard;
-
     [SerializeField] private Transform eyePoint;
     [SerializeField] private LayerMask sightMask;
     [SerializeField] private float sightCheckRate = 0.1f;
 
-    private EnemyController controller;
+    private EnemyBlackboard blackboard;
+
     private Collider targetCollider;
 
     private float nextSightCheck;
 
     private void Awake()
     {
-        controller = GetComponentInParent<EnemyController>();
-
-        if (controller == null)
-        {
-            Debug.LogError($"{name}: EnemyController not found.");
-            enabled = false;
-            return;
-        }
-
         blackboard = GetComponentInParent<EnemyBlackboard>();
 
         if (blackboard == null)
         {
-            Debug.LogError($"{name}: EnemyBlackBoard not found.");
+            Debug.LogError($"{name}: EnemyBlackboard not found.");
             enabled = false;
             return;
         }
 
         eyePoint ??= transform;
-
-        blackboard.CanSeeTarget = false;
     }
 
     private void Update()
@@ -56,12 +44,9 @@ public class EnemyVision : MonoBehaviour
         if (!other.TryGetComponent(out PlayerPublicRef player))
             return;
 
-        Debug.Log($"EnemyVision: Detected {other.name}");
-
-        blackboard.CurrentTarget = player.transform;
         targetCollider = other;
 
-        // Enemy aggroes immediately when player enters detection range.
+        blackboard.CurrentTarget = player.transform;
         blackboard.IsAggro = true;
 
         CheckLineOfSight();
@@ -72,31 +57,23 @@ public class EnemyVision : MonoBehaviour
         if (targetCollider == null)
             return;
 
-        Vector3 origin = eyePoint.position;
-        Vector3 targetPos = blackboard.CurrentTarget.position;
-
-        Vector3 dir = targetPos - origin;
-
-        float distance = dir.magnitude;
-
-        if (distance <= 0.001f)
+        if (blackboard.CurrentTarget == null)
             return;
 
-        bool canSeePlayer = Physics.Raycast(origin, dir / distance, out RaycastHit hit, distance, sightMask) && hit.collider.TryGetComponent<PlayerPublicRef>(out _);
+        Vector3 origin = eyePoint.position;
+        Vector3 targetPosition = blackboard.CurrentTarget.position;
 
-        Debug.DrawRay(origin, dir.normalized * distance, canSeePlayer ? Color.green : Color.red, sightCheckRate);
+        Vector3 direction = targetPosition - origin;
+        float distance = direction.magnitude;
+
+        bool canSeePlayer = Physics.Raycast(origin, direction.normalized, out RaycastHit hit, distance, sightMask) && hit.collider.TryGetComponent<PlayerPublicRef>(out _);
 
         blackboard.CanSeeTarget = canSeePlayer;
 
-        if (!canSeePlayer)
-            return;
-
-        // Permanent aggro once LOS is achieved.
-        blackboard.IsAggro = true;
-
-        blackboard.HasSeenTarget = true;
-
-        blackboard.LastSeenPosition =
-            blackboard.CurrentTarget.position;
+        if (canSeePlayer)
+        {
+            blackboard.HasSeenTarget = true;
+            blackboard.IsAggro = true;
+        }
     }
 }

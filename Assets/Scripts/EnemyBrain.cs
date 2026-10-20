@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 public enum EnemyState
@@ -15,8 +16,10 @@ public class EnemyBrain : MonoBehaviour
     public event Action<EnemyState> OnStateChanged;
 
     [SerializeField] private float attackRange = 3f;
+    [SerializeField] private TextMeshProUGUI debugStateText;
 
     private EnemyBlackboard blackboard;
+
     private EnemyState currentState;
 
     public EnemyState CurrentState => currentState;
@@ -62,13 +65,19 @@ public class EnemyBrain : MonoBehaviour
             return;
         }
 
-        float distance = Vector3.Distance(
-            transform.position,
-            blackboard.LastSeenPosition);
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                blackboard.CurrentTarget.position);
 
         bool canAttack =
             distance <= attackRange &&
             !blackboard.AttackOnCooldown;
+
+        if (AttackScheduler.HasInstance)
+        {
+            canAttack &= AttackScheduler.Instance.VerifyAttackSlot();
+        }
 
         if (canAttack)
         {
@@ -87,6 +96,9 @@ public class EnemyBrain : MonoBehaviour
         currentState = newState;
 
         Debug.Log($"{name} -> {currentState}");
+
+        if (debugStateText != null)
+            debugStateText.text = currentState.ToString();
 
         OnStateChanged?.Invoke(currentState);
     }

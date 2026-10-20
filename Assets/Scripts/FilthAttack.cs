@@ -50,6 +50,9 @@ public class FilthAttack : MonoBehaviour
         if (blackboard.AttackOnCooldown)
             return;
 
+        if (blackboard.CurrentTarget == null)
+            return;
+
         StartCoroutine(AttackRoutine());
     }
 
@@ -61,13 +64,15 @@ public class FilthAttack : MonoBehaviour
 
         agent.isStopped = true;
 
-        Vector3 targetPosition = blackboard.LastSeenPosition;
+        Vector3 targetPosition = blackboard.CurrentTarget.position;
 
-        Vector3 lookDirection = targetPosition - transform.position;
-        lookDirection.y = 0f;
+        Vector3 lookDir = targetPosition - transform.position;
+        lookDir.y = 0f;
 
-        if (lookDirection.sqrMagnitude > 0.01f)
-            transform.rotation = Quaternion.LookRotation(lookDirection);
+        if (lookDir.sqrMagnitude > 0.01f)
+        {
+            transform.rotation = Quaternion.LookRotation(lookDir);
+        }
 
         yield return new WaitForSeconds(windupTime);
 
