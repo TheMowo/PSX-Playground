@@ -82,12 +82,9 @@ public class FilthAttack : MonoBehaviour
 
         rb.linearVelocity = Vector3.zero;
 
-        Vector3 launchDirection =
-            (targetPosition - transform.position).normalized;
+        Vector3 launchDirection = (targetPosition - transform.position).normalized;
 
-        rb.linearVelocity =
-            launchDirection * lungeForce +
-            Vector3.up * lungeUpwardForce;
+        rb.linearVelocity = launchDirection * lungeForce + Vector3.up * lungeUpwardForce;
 
         yield return new WaitForSeconds(0.15f);
 

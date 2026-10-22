@@ -9,18 +9,23 @@ public class CharacterMotor : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 12f;
-    [SerializeField] private float groundAcceleration = 25f;
+    [SerializeField] private float groundAcceleration = 30f;
 
     [Header("Jump")]
     [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float jumpBufferTime = 0.15f;
+    [SerializeField] private float coyoteTime = 0.15f;
+
+    private float jumpBufferCounter;
+    private float coyoteCounter;
 
     [Header("Gravity")]
-    [SerializeField] private float gravity = -25f;
-    [SerializeField] private float maxFallSpeed = -40f;
+    [SerializeField] private float gravity = -30f;
+    [SerializeField] private float maxFallSpeed = -60f;
 
     [Header("Air Control")]
-    [SerializeField] private float airAcceleration = 35f;
-    [SerializeField] private float maxAirSpeed = 20f;
+    [SerializeField] private float airAcceleration = 120f;
+    [SerializeField] private float maxAirSpeed = 40f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 18f;
@@ -98,12 +103,7 @@ public class CharacterMotor : MonoBehaviour
             StartCoroutine(SlideCoroutine());
         }
 
-        if (controller.isGrounded &&
-            M_InputManager.Instance.JumpPressed)
-        {
-            Jump();
-        }
-
+        HandleJumpBuffer();
         HandleAirControl();
         ApplyGravity();
         ApplyFriction();
@@ -183,17 +183,12 @@ public class CharacterMotor : MonoBehaviour
             Vector3 targetVelocity =
                 inputDir * moveSpeed;
 
-            velocity.x =
-                Mathf.MoveTowards(
-                    velocity.x,
-                    targetVelocity.x,
-                    groundAcceleration * moveSpeed * Time.deltaTime);
+            Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-            velocity.z =
-                Mathf.MoveTowards(
-                    velocity.z,
-                    targetVelocity.z,
-                    groundAcceleration * moveSpeed * Time.deltaTime);
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, groundAcceleration * moveSpeed * Time.deltaTime);
+
+            velocity.x = horizontalVelocity.x;
+            velocity.z = horizontalVelocity.z;
         }
     }
 
@@ -201,9 +196,43 @@ public class CharacterMotor : MonoBehaviour
 
     #region Jump
 
+    private void HandleJumpBuffer()
+    {
+        if (M_InputManager.Instance.JumpPressed)
+        {
+            jumpBufferCounter =
+                jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -=
+                Time.deltaTime;
+        }
+
+        if (controller.isGrounded)
+        {
+            coyoteCounter =
+                coyoteTime;
+        }
+        else
+        {
+            coyoteCounter -=
+                Time.deltaTime;
+        }
+
+        if (jumpBufferCounter > 0f &&
+            coyoteCounter > 0f)
+        {
+            Jump();
+        }
+    }
+
     private void Jump()
     {
         velocity.y = jumpForce;
+
+        jumpBufferCounter = 0f;
+        coyoteCounter = 0f;
     }
 
     #endregion
@@ -237,19 +266,13 @@ public class CharacterMotor : MonoBehaviour
         if (controller.isGrounded)
             return;
 
-        Vector2 moveInput =
-            M_InputManager.Instance.MoveInput;
+        Vector2 moveInput = M_InputManager.Instance.MoveInput;
 
-        Transform moveReference =
-            isFirstPerson
-                ? transform
-                : Camera.main.transform;
+        Transform moveReference = isFirstPerson ? transform: Camera.main.transform;
 
-        Vector3 forward =
-            moveReference.forward;
+        Vector3 forward =moveReference.forward;
 
-        Vector3 right =
-            moveReference.right;
+        Vector3 right = moveReference.right;
 
         forward.y = 0f;
         right.y = 0f;
@@ -261,7 +284,7 @@ public class CharacterMotor : MonoBehaviour
             (forward * moveInput.y +
              right * moveInput.x).normalized;
 
-        if (airInput.magnitude < 0.1f)
+        if (airInput.sqrMagnitude < 0.01f)
             return;
 
         Vector3 horizontalVelocity =
@@ -270,18 +293,30 @@ public class CharacterMotor : MonoBehaviour
                 0f,
                 velocity.z);
 
-        horizontalVelocity +=
-            airInput *
+        float currentSpeedInDirection =
+            Vector3.Dot(
+                horizontalVelocity,
+                airInput);
+
+        float addSpeed =
+            maxAirSpeed -
+            currentSpeedInDirection;
+
+        if (addSpeed <= 0f)
+            return;
+
+        float accelSpeed =
             airAcceleration *
             Time.deltaTime;
 
-        if (horizontalVelocity.magnitude >
-            maxAirSpeed)
-        {
-            horizontalVelocity =
-                horizontalVelocity.normalized *
-                maxAirSpeed;
-        }
+        accelSpeed =
+            Mathf.Min(
+                accelSpeed,
+                addSpeed);
+
+        horizontalVelocity +=
+            airInput *
+            accelSpeed;
 
         velocity.x = horizontalVelocity.x;
         velocity.z = horizontalVelocity.z;
@@ -402,12 +437,9 @@ public class CharacterMotor : MonoBehaviour
                 slideDir * currentSpeed +
                 Vector3.up * velocity.y;
 
-            if (controller.isGrounded &&
-                M_InputManager.Instance.JumpPressed)
+            if (jumpBufferCounter > 0f && coyoteCounter > 0f)
             {
-                velocity =
-                    slideDir *
-                    (currentSpeed + 5f);
+                velocity = slideDir * (currentSpeed + 5f);
 
                 Jump();
                 break;

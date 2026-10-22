@@ -221,7 +221,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!195 &5125076207217912560
 NavMeshAgent:
@@ -260,7 +260,6 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   HasSeenTarget: 0
   CanSeeTarget: 0
-  LastSeenPosition: {x: 0, y: 0, z: 0}
   IsAggro: 0
   IsAttacking: 0
   AttackOnCooldown: 0
@@ -280,7 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b3f92432a7855a4a99bf67caa97112c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  attackRange: 5
+  attackRange: 8
   debugStateText: {fileID: 5769693973977886089}
 --- !u!114 &5767035961344692056
 MonoBehaviour:
@@ -294,7 +293,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9046c89e458c3fe41b3366ff5ed9e5a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  stoppingDistance: 4
+  pathRefreshRate: 0.15
+  stoppingDistance: 6
 --- !u!114 &4493831605904103417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,10 +321,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   attackCooldown: 1.5
   attackHitbox: {fileID: 2930458475874247765}
-  lungeForce: 12
+  lungeForce: 20
   lungeUpwardForce: 2
-  windupTime: 0.15
-  recoveryTime: 0.5
+  windupTime: 0.1
+  recoveryTime: 0.35
 --- !u!1 &1817569752636672657
 GameObject:
   m_ObjectHideFlags: 0
