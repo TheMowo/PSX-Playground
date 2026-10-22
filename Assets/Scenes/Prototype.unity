@@ -5164,6 +5164,8 @@ MonoBehaviour:
   moveSpeed: 15
   groundAcceleration: 10
   jumpForce: 10
+  jumpBufferTime: 0.15
+  coyoteTime: 0.15
   gravity: -30
   maxFallSpeed: -40
   airAcceleration: 35
@@ -18751,7 +18753,7 @@ Transform:
   m_GameObject: {fileID: 926947077}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 18, y: 6.245, z: 5}
+  m_LocalPosition: {x: 22.37, y: 6.245, z: 7.82}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -41958,7 +41960,7 @@ Transform:
   m_GameObject: {fileID: 1950299073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 27.54, y: 5.1086, z: 4.79}
+  m_LocalPosition: {x: 27.54, y: 5.1086, z: 58.78}
   m_LocalScale: {x: 5.2562547, y: 0.8881136, z: 5.4531016}
   m_ConstrainProportionsScale: 0
   m_Children: []
