@@ -74,9 +74,9 @@ public class EnemyBrain : MonoBehaviour
             distance <= attackRange &&
             !blackboard.AttackOnCooldown;
 
-        if (AttackScheduler.HasInstance)
+        if (M_AttackScheduler.HasInstance)
         {
-            canAttack &= AttackScheduler.Instance.VerifyAttackSlot();
+            canAttack &= M_AttackScheduler.Instance.VerifyAttackSlot();
         }
 
         if (canAttack)

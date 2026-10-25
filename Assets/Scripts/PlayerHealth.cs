@@ -1,10 +1,13 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float startingHealth = 100f;
+
+    [SerializeField] private float respawnDelay = 2f;
 
     public float CurrentHealth { get; private set; }
     public float MaxHealth => maxHealth;
@@ -16,12 +19,18 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        CurrentHealth = Mathf.Clamp(startingHealth, 0f, maxHealth);
+        CurrentHealth =
+            Mathf.Clamp(
+                startingHealth,
+                0f,
+                maxHealth);
     }
 
     private void Start()
     {
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnHealthChanged?.Invoke(
+            CurrentHealth,
+            MaxHealth);
     }
 
     public void TakeDamage(float amount)
@@ -32,6 +41,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
 
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+        Debug.Log($"Player took {amount} damage");
 
         if (CurrentHealth <= 0f)
         {
@@ -44,9 +55,14 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (IsDead)
             return;
 
-        CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
+        CurrentHealth =
+            Mathf.Min(
+                MaxHealth,
+                CurrentHealth + amount);
 
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnHealthChanged?.Invoke(
+            CurrentHealth,
+            MaxHealth);
     }
 
     public void SetHealth(float value)
@@ -54,9 +70,15 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (IsDead)
             return;
 
-        CurrentHealth = Mathf.Clamp(value, 0f, MaxHealth);
+        CurrentHealth =
+            Mathf.Clamp(
+                value,
+                0f,
+                MaxHealth);
 
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnHealthChanged?.Invoke(
+            CurrentHealth,
+            MaxHealth);
 
         if (CurrentHealth <= 0f)
         {
@@ -71,8 +93,72 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         IsDead = true;
 
+        if (TryGetComponent(out CharacterMotor motor))
+        {
+            motor.DisableMovement();
+        }
+
         OnDeath?.Invoke();
 
+        StartCoroutine(
+            RespawnRoutine());
+
         Debug.Log("Player died.");
+    }
+
+    private IEnumerator RespawnRoutine()
+    {
+        RespawnCheckpoint();
+
+        Respawn();
+
+        yield return new WaitForSeconds(respawnDelay);
+
+        if (TryGetComponent(out CharacterMotor motor))
+        {
+            motor.EnableMovement();
+        }
+    }
+
+    public void Respawn()
+    {
+        IsDead = false;
+
+        CurrentHealth = MaxHealth;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
+    public void RespawnCheckpoint()
+    {
+        if (!M_CheckpointManager.Instance.HasCheckpoint())
+        {
+            Debug.LogWarning("No checkpoint available.");
+            return;
+        }
+
+        Vector3 checkpointPos = M_CheckpointManager.Instance.GetCheckpointPosition();
+
+        CharacterController controller = GetComponent<CharacterController>();
+
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        transform.position = checkpointPos;
+
+        if (controller != null)
+        {
+            controller.enabled = true;
+            controller.height = 2;
+        }
+
+        if (TryGetComponent(out CharacterMotor motor))
+        {
+            motor.ResetMovementState();
+        }
+
+        Debug.Log($"Respawning to {checkpointPos}");
     }
 }

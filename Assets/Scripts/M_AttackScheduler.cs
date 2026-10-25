@@ -2,9 +2,9 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackScheduler : Singleton<AttackScheduler>
+public class M_AttackScheduler : Singleton<M_AttackScheduler>
 {
-    [Header("IDK")]
+    [Header("Attack Scheduler")]
     [SerializeField] private int listCapacity = 1;
     [SerializeField] private float defSlotStayDuration = 0.4f;
 

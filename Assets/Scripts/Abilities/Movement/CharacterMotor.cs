@@ -49,7 +49,6 @@ public class CharacterMotor : MonoBehaviour
     private CharacterController controller;
 
     private GameObject debugCanvas;
-
     private TextMeshProUGUI debugText_playerState;
 
     [SerializeField]
@@ -60,6 +59,7 @@ public class CharacterMotor : MonoBehaviour
 
     private Vector3 velocity;
     private Vector3 inputDir;
+    private Vector3 characterCenter;
 
     private bool isDashing;
     private bool isSliding;
@@ -81,6 +81,9 @@ public class CharacterMotor : MonoBehaviour
 
         if (!animator)
             animator = GetComponentInChildren<Animator>();
+
+        characterCenter = controller.center;
+        Debug.Log($"Center: {controller.center}");
     }
 
     private void Start()
@@ -89,16 +92,18 @@ public class CharacterMotor : MonoBehaviour
             debugText_playerState =
                 debugCanvas.GetComponentInChildren<TextMeshProUGUI>();
 
-        controller.height = standingHeight;
+        SetStandingCapsule();
     }
 
     private void Update()
     {
+        if (!MovementEnabled)
+            return;
+
         HandleMovementInput();
         HandleDash();
 
-        if (M_InputManager.Instance.SlideHeld &&
-            !isSliding)
+        if (M_InputManager.Instance.SlideHeld && !isSliding)
         {
             StartCoroutine(SlideCoroutine());
         }
@@ -108,23 +113,15 @@ public class CharacterMotor : MonoBehaviour
         ApplyGravity();
         ApplyFriction();
 
-        controller.Move(
-            velocity * Time.deltaTime);
+        controller.Move(velocity * Time.deltaTime);
 
         UpdateAnimator();
         UpdateDebugState();
 
-        Vector3 horizontalVelocity =
-            new Vector3(
-                velocity.x,
-                0f,
-                velocity.z);
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
         if (debugText_currentSpeed)
-        {
-            debugText_currentSpeed.text =
-                $"Current Speed: {horizontalVelocity.magnitude:F2}";
-        }
+            debugText_currentSpeed.text = $"Current Speed: {horizontalVelocity.magnitude:F2}";
     }
 
     public void EnableMovement()
@@ -135,6 +132,18 @@ public class CharacterMotor : MonoBehaviour
     public void DisableMovement()
     {
         MovementEnabled = false;
+        ResetMovementState();
+    }
+
+    private void SetStandingCapsule()
+    {
+        controller.height = standingHeight;
+        controller.center = Vector3.zero;
+    }
+
+    private void SetSlideCapsule()
+    {
+        controller.height = slideHeight;
     }
 
     #region Movement
@@ -147,19 +156,15 @@ public class CharacterMotor : MonoBehaviour
         if (isSliding || isDashing)
             return;
 
-        Vector2 moveInput =
-            M_InputManager.Instance.MoveInput;
+        Vector2 moveInput = M_InputManager.Instance.MoveInput;
 
         Transform moveReference =
             isFirstPerson
                 ? transform
                 : Camera.main.transform;
 
-        Vector3 forward =
-            moveReference.forward;
-
-        Vector3 right =
-            moveReference.right;
+        Vector3 forward = moveReference.forward;
+        Vector3 right = moveReference.right;
 
         forward.y = 0f;
         right.y = 0f;
@@ -167,25 +172,20 @@ public class CharacterMotor : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        inputDir =
-            (forward * moveInput.y +
-             right * moveInput.x).normalized;
+        inputDir = (forward * moveInput.y + right * moveInput.x).normalized;
 
-        if (!isFirstPerson &&
-            inputDir.magnitude > 0.1f)
-        {
-            transform.rotation =
-                Quaternion.LookRotation(inputDir);
-        }
+        if (!isFirstPerson && inputDir.magnitude > 0.1f)
+            transform.rotation = Quaternion.LookRotation(inputDir);
 
         if (controller.isGrounded)
         {
-            Vector3 targetVelocity =
-                inputDir * moveSpeed;
-
+            Vector3 targetVelocity = inputDir * moveSpeed;
             Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, groundAcceleration * moveSpeed * Time.deltaTime);
+            horizontalVelocity = Vector3.MoveTowards(
+                horizontalVelocity,
+                targetVelocity,
+                groundAcceleration * moveSpeed * Time.deltaTime);
 
             velocity.x = horizontalVelocity.x;
             velocity.z = horizontalVelocity.z;
@@ -199,32 +199,17 @@ public class CharacterMotor : MonoBehaviour
     private void HandleJumpBuffer()
     {
         if (M_InputManager.Instance.JumpPressed)
-        {
-            jumpBufferCounter =
-                jumpBufferTime;
-        }
+            jumpBufferCounter = jumpBufferTime;
         else
-        {
-            jumpBufferCounter -=
-                Time.deltaTime;
-        }
+            jumpBufferCounter -= Time.deltaTime;
 
         if (controller.isGrounded)
-        {
-            coyoteCounter =
-                coyoteTime;
-        }
+            coyoteCounter = coyoteTime;
         else
-        {
-            coyoteCounter -=
-                Time.deltaTime;
-        }
+            coyoteCounter -= Time.deltaTime;
 
-        if (jumpBufferCounter > 0f &&
-            coyoteCounter > 0f)
-        {
+        if (jumpBufferCounter > 0f && coyoteCounter > 0f)
             Jump();
-        }
     }
 
     private void Jump()
@@ -243,13 +228,8 @@ public class CharacterMotor : MonoBehaviour
     {
         if (!controller.isGrounded)
         {
-            velocity.y +=
-                gravity * Time.deltaTime;
-
-            velocity.y =
-                Mathf.Max(
-                    velocity.y,
-                    maxFallSpeed);
+            velocity.y += gravity * Time.deltaTime;
+            velocity.y = Mathf.Max(velocity.y, maxFallSpeed);
         }
         else if (velocity.y < 0f)
         {
@@ -268,10 +248,12 @@ public class CharacterMotor : MonoBehaviour
 
         Vector2 moveInput = M_InputManager.Instance.MoveInput;
 
-        Transform moveReference = isFirstPerson ? transform: Camera.main.transform;
+        Transform moveReference =
+            isFirstPerson
+                ? transform
+                : Camera.main.transform;
 
-        Vector3 forward =moveReference.forward;
-
+        Vector3 forward = moveReference.forward;
         Vector3 right = moveReference.right;
 
         forward.y = 0f;
@@ -280,43 +262,23 @@ public class CharacterMotor : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 airInput =
-            (forward * moveInput.y +
-             right * moveInput.x).normalized;
+        Vector3 airInput = (forward * moveInput.y + right * moveInput.x).normalized;
 
         if (airInput.sqrMagnitude < 0.01f)
             return;
 
-        Vector3 horizontalVelocity =
-            new Vector3(
-                velocity.x,
-                0f,
-                velocity.z);
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-        float currentSpeedInDirection =
-            Vector3.Dot(
-                horizontalVelocity,
-                airInput);
-
-        float addSpeed =
-            maxAirSpeed -
-            currentSpeedInDirection;
+        float currentSpeedInDirection = Vector3.Dot(horizontalVelocity, airInput);
+        float addSpeed = maxAirSpeed - currentSpeedInDirection;
 
         if (addSpeed <= 0f)
             return;
 
-        float accelSpeed =
-            airAcceleration *
-            Time.deltaTime;
+        float accelSpeed = airAcceleration * Time.deltaTime;
+        accelSpeed = Mathf.Min(accelSpeed, addSpeed);
 
-        accelSpeed =
-            Mathf.Min(
-                accelSpeed,
-                addSpeed);
-
-        horizontalVelocity +=
-            airInput *
-            accelSpeed;
+        horizontalVelocity += airInput * accelSpeed;
 
         velocity.x = horizontalVelocity.x;
         velocity.z = horizontalVelocity.z;
@@ -337,8 +299,7 @@ public class CharacterMotor : MonoBehaviour
         if (isDashing)
             return;
 
-        if (Time.time <
-            lastDashTime + dashCooldown)
+        if (Time.time < lastDashTime + dashCooldown)
             return;
 
         lastDashTime = Time.time;
@@ -349,17 +310,14 @@ public class CharacterMotor : MonoBehaviour
                 ? inputDir
                 : transform.forward;
 
-        velocity +=
-            dashDirection *
-            dashSpeed;
+        velocity += dashDirection * dashSpeed;
 
         StartCoroutine(DashCoroutine());
     }
 
     private IEnumerator DashCoroutine()
     {
-        yield return new WaitForSeconds(
-            dashDuration);
+        yield return new WaitForSeconds(dashDuration);
 
         isDashing = false;
     }
@@ -372,19 +330,11 @@ public class CharacterMotor : MonoBehaviour
     {
         isSliding = true;
 
-        controller.height = slideHeight;
+        SetSlideCapsule();
 
-        Vector3 horizontalVelocity =
-            new Vector3(
-                velocity.x,
-                0f,
-                velocity.z);
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-        float currentSpeed =
-            Mathf.Max(
-                horizontalVelocity.magnitude,
-                moveSpeed);
-
+        float currentSpeed = Mathf.Max(horizontalVelocity.magnitude, moveSpeed);
         currentSpeed *= slideMultiplier;
 
         Vector3 slideDir =
@@ -392,23 +342,14 @@ public class CharacterMotor : MonoBehaviour
                 ? horizontalVelocity.normalized
                 : transform.forward;
 
-        while (
-            currentSpeed > slideEndThreshold &&
-            M_InputManager.Instance.SlideHeld)
+        while (currentSpeed > slideEndThreshold && M_InputManager.Instance.SlideHeld)
         {
-            Transform moveReference =
-                isFirstPerson
-                    ? transform
-                    : Camera.main.transform;
+            Transform moveReference = isFirstPerson ? transform : Camera.main.transform;
 
-            Vector2 moveInput =
-                M_InputManager.Instance.MoveInput;
+            Vector2 moveInput = M_InputManager.Instance.MoveInput;
 
-            Vector3 forward =
-                moveReference.forward;
-
-            Vector3 right =
-                moveReference.right;
+            Vector3 forward = moveReference.forward;
+            Vector3 right = moveReference.right;
 
             forward.y = 0f;
             right.y = 0f;
@@ -416,28 +357,22 @@ public class CharacterMotor : MonoBehaviour
             forward.Normalize();
             right.Normalize();
 
-            Vector3 steeringInput =
-                (forward * moveInput.y +
-                 right * moveInput.x).normalized;
+            Vector3 steeringInput = (forward * moveInput.y + right * moveInput.x).normalized;
 
             if (steeringInput.magnitude > 0.1f)
             {
-                slideDir =
-                    Vector3.Lerp(
-                        slideDir,
-                        steeringInput,
-                        slideSteerStrength *
-                        Time.deltaTime)
-                    .normalized;
+                slideDir = Vector3.Lerp(
+                    slideDir,
+                    steeringInput,
+                    slideSteerStrength * Time.deltaTime).normalized;
             }
 
             currentSpeed *= slideDecay;
 
-            velocity =
-                slideDir * currentSpeed +
-                Vector3.up * velocity.y;
+            velocity = slideDir * currentSpeed + Vector3.up * velocity.y;
 
-            if (jumpBufferCounter > 0f && coyoteCounter > 0f)
+            if (jumpBufferCounter > 0f &&
+                coyoteCounter > 0f)
             {
                 velocity = slideDir * (currentSpeed + 5f);
 
@@ -448,7 +383,7 @@ public class CharacterMotor : MonoBehaviour
             yield return null;
         }
 
-        controller.height = standingHeight;
+        SetStandingCapsule();
 
         isSliding = false;
     }
@@ -465,17 +400,12 @@ public class CharacterMotor : MonoBehaviour
         if (isSliding || isDashing)
             return;
 
-        Vector3 horizontalVelocity =
-            new Vector3(
-                velocity.x,
-                0f,
-                velocity.z);
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
-        horizontalVelocity =
-            Vector3.Lerp(
-                horizontalVelocity,
-                Vector3.zero,
-                friction * Time.deltaTime);
+        horizontalVelocity = Vector3.Lerp(
+            horizontalVelocity,
+            Vector3.zero,
+            friction * Time.deltaTime);
 
         velocity.x = horizontalVelocity.x;
         velocity.z = horizontalVelocity.z;
@@ -490,17 +420,9 @@ public class CharacterMotor : MonoBehaviour
         if (!animator)
             return;
 
-        animator.SetFloat(
-            "Speed",
-            inputDir.magnitude);
-
-        animator.SetBool(
-            "IsDashing",
-            isDashing);
-
-        animator.SetBool(
-            "IsSliding",
-            isSliding);
+        animator.SetFloat("Speed", inputDir.magnitude);
+        animator.SetBool("IsDashing", isDashing);
+        animator.SetBool("IsSliding", isSliding);
     }
 
     #endregion
@@ -519,16 +441,10 @@ public class CharacterMotor : MonoBehaviour
             state = "Moving";
 
         if (debugText_playerState)
-        {
-            debugText_playerState.text =
-                $"STATE\n{state}";
-        }
+            debugText_playerState.text = $"STATE\n{state}";
 
         if (debugText_currentState)
-        {
-            debugText_currentState.text =
-                $"Current State: {state}";
-        }
+            debugText_currentState.text = $"Current State: {state}";
     }
 
     #endregion
@@ -536,5 +452,23 @@ public class CharacterMotor : MonoBehaviour
     public void Launch(float verticalVelocity)
     {
         velocity.y = verticalVelocity;
+    }
+
+    public void ResetMovementState()
+    {
+        StopAllCoroutines();
+
+        velocity = Vector3.zero;
+        inputDir = Vector3.zero;
+
+        isDashing = false;
+        isSliding = false;
+
+        jumpBufferCounter = 0f;
+        coyoteCounter = 0f;
+
+        SetStandingCapsule();
+
+        Debug.Log($"Movement Reset | Height: {controller.height} | Sliding: {isSliding}");
     }
 }

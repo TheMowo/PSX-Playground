@@ -11,19 +11,19 @@ public class InteractionAbility : MonoBehaviour
     [SerializeField] private LayerMask interactableLayers = -1;
     [SerializeField] private LayerMask ignoreLayers;
 
-    private UIManager uiController; // reference to UI controller for interaction highlight UI
+    private M_UIManager uiController; // reference to UI controller for interaction highlight UI
     private Collider currentTargetCol;
     private IInteractable currentTargetInteractable; // store interface reference
     private bool canInteract;
     private bool wasHitting;
 
-    [ShowInInspector] public UIManager UIController => uiController;
+    [ShowInInspector] public M_UIManager UIController => uiController;
     [ShowInInspector] public Collider CurrentTargetBoxCol => currentTargetCol;
     [ShowInInspector] public bool CanInteract => canInteract;
 
     private void Awake()
     {
-        uiController = GetComponent<UIManager>();
+        uiController = GetComponent<M_UIManager>();
     }
 
     private void Update()

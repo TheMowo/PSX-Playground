@@ -6,22 +6,19 @@ public class DeathBarrier : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (sendToLastCheckpoint)
+        if (other.TryGetComponent<PlayerPublicRef>(out PlayerPublicRef player))
         {
-            if (other.TryGetComponent<PlayerPublicRef>(out PlayerPublicRef player))
+            if (sendToLastCheckpoint && M_CheckpointManager.Instance != null && M_CheckpointManager.Instance.HasCheckpoint())
             {
-                // player.ResetToLastCheckpoint();
-                // need checkpoint system!
+                player.GetComponent<PlayerHealth>().TakeDamage(50);
+                player.GetComponent<PlayerHealth>().RespawnCheckpoint();
+                return;
             }
         }
 
         if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
         {
-            if (other.TryGetComponent<PlayerPublicRef>(out PlayerPublicRef player))
-                damageable.TakeDamage(50);
-
-            else
-                damageable.TakeDamage(99999);
+            damageable.TakeDamage(99999);
         }
     }
 }
