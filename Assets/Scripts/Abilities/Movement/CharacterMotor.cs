@@ -138,7 +138,7 @@ public class CharacterMotor : MonoBehaviour
     private void SetStandingCapsule()
     {
         controller.height = standingHeight;
-        controller.center = Vector3.zero;
+        controller.center = characterCenter;
     }
 
     private void SetSlideCapsule()
@@ -470,5 +470,10 @@ public class CharacterMotor : MonoBehaviour
         SetStandingCapsule();
 
         Debug.Log($"Movement Reset | Height: {controller.height} | Sliding: {isSliding}");
+    }
+
+    public float GetHorizontalSpeed()
+    {
+        return new Vector3(velocity.x, 0f, velocity.z).magnitude;
     }
 }

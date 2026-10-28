@@ -10,7 +10,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
 
     public static bool HasInstance => _instance != null;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (_instance != null && _instance != this)
         {
@@ -18,7 +18,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
             return;
         }
 
-        _instance = this as T;
+        _instance = (T)this;
 
         if (_persistBetweenScenes)
         {

@@ -100,8 +100,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         OnDeath?.Invoke();
 
-        StartCoroutine(
-            RespawnRoutine());
+        StartCoroutine(RespawnRoutine());
 
         Debug.Log("Player died.");
     }
@@ -137,7 +136,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             return;
         }
 
-        Vector3 checkpointPos = M_CheckpointManager.Instance.GetCheckpointPosition();
+        Vector3 checkpointPos = M_SpawnManager.Instance.GetSpawnPosition();
 
         CharacterController controller = GetComponent<CharacterController>();
 
