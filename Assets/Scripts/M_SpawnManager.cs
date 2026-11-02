@@ -7,10 +7,16 @@ public class M_SpawnManager : Singleton<M_SpawnManager>
     public Vector3 GetSpawnPosition()
     {
         if (M_CheckpointManager.Instance.HasCheckpoint())
-        {
             return M_CheckpointManager.Instance.GetCheckpointPosition();
-        }
 
         return defaultSpawn.position;
+    }
+
+    public Quaternion GetSpawnRotation()
+    {
+        if (M_CheckpointManager.Instance.HasCheckpoint())
+            return M_CheckpointManager.Instance.GetCheckpointRotation();
+
+        return defaultSpawn.rotation;
     }
 }

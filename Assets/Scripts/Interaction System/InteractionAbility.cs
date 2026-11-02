@@ -75,7 +75,7 @@ public class InteractionAbility : MonoBehaviour
                 currentTargetInteractable = interactable;
                 isHitting = true;
 
-                Debug.Log("Raycast hit interactable");
+                //Debug.Log("Raycast hit interactable");
                 break;
             }
         }

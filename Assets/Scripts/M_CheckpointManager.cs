@@ -3,14 +3,18 @@ using UnityEngine;
 public class M_CheckpointManager : Singleton<M_CheckpointManager>
 {
     private Vector3 checkpointPosition;
+    private Quaternion checkpointRotation;
+
     private bool hasCheckpoint;
 
-    public void SetCheckpoint(Vector3 position)
+    public void SetCheckpoint(Transform checkpoint)
     {
-        checkpointPosition = position;
-        hasCheckpoint = true;
+        checkpointPosition = checkpoint.position;
 
-        Debug.Log($"Checkpoint set: {position}");
+        float yRotation = checkpoint.forward.y;
+        checkpointRotation = Quaternion.Euler(0f, yRotation, 0f);
+
+        hasCheckpoint = true;
     }
 
     public bool HasCheckpoint()
@@ -21,5 +25,10 @@ public class M_CheckpointManager : Singleton<M_CheckpointManager>
     public Vector3 GetCheckpointPosition()
     {
         return checkpointPosition;
+    }
+
+    public Quaternion GetCheckpointRotation()
+    {
+        return checkpointRotation;
     }
 }

@@ -2,10 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class M_InputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions, InputSystem_Actions.IUIActions
+public class M_InputManager : Singleton<M_InputManager>, InputSystem_Actions.IPlayerActions, InputSystem_Actions.IUIActions
 {
-    public static M_InputManager Instance { get; private set; }
-
     public enum InputDeviceType
     {
         Mouse,
@@ -50,16 +48,9 @@ public class M_InputManager : MonoBehaviour, InputSystem_Actions.IPlayerActions,
 
     private InputSystem_Actions controls;
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(this);
+        base.Awake();
 
         controls = new InputSystem_Actions();
 

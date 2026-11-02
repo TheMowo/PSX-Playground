@@ -137,6 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e37b8755bcddfd540ae1bf25c880e943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
+  parentObject: {fileID: 2655948076549108363}
   groundLayers:
     serializedVersion: 2
     m_Bits: 1

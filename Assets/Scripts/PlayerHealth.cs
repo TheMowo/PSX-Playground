@@ -94,9 +94,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         IsDead = true;
 
         if (TryGetComponent(out CharacterMotor motor))
-        {
             motor.DisableMovement();
-        }
 
         OnDeath?.Invoke();
 
@@ -105,13 +103,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Debug.Log("Player died.");
     }
 
+
     private IEnumerator RespawnRoutine()
     {
-        RespawnCheckpoint();
+        yield return new WaitForSeconds(respawnDelay);
 
         Respawn();
-
-        yield return new WaitForSeconds(respawnDelay);
 
         if (TryGetComponent(out CharacterMotor motor))
         {
@@ -128,36 +125,36 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
-    public void RespawnCheckpoint()
-    {
-        if (!M_CheckpointManager.Instance.HasCheckpoint())
-        {
-            Debug.LogWarning("No checkpoint available.");
-            return;
-        }
+    //public void RespawnCheckpoint()
+    //{
+    //    if (!M_CheckpointManager.Instance.HasCheckpoint())
+    //    {
+    //        Debug.LogWarning("No checkpoint available.");
+    //        return;
+    //    }
 
-        Vector3 checkpointPos = M_SpawnManager.Instance.GetSpawnPosition();
+    //    Vector3 checkpointPos = M_SpawnManager.Instance.GetSpawnPosition();
 
-        CharacterController controller = GetComponent<CharacterController>();
+    //    CharacterController controller = GetComponent<CharacterController>();
 
-        if (controller != null)
-        {
-            controller.enabled = false;
-        }
+    //    if (controller != null)
+    //    {
+    //        controller.enabled = false;
+    //    }
 
-        transform.position = checkpointPos;
+    //    transform.position = checkpointPos;
 
-        if (controller != null)
-        {
-            controller.enabled = true;
-            controller.height = 2;
-        }
+    //    if (controller != null)
+    //    {
+    //        controller.enabled = true;
+    //        controller.height = 2;
+    //    }
 
-        if (TryGetComponent(out CharacterMotor motor))
-        {
-            motor.ResetMovementState();
-        }
+    //    if (TryGetComponent(out CharacterMotor motor))
+    //    {
+    //        motor.ResetMovementState();
+    //    }
 
-        Debug.Log($"Respawning to {checkpointPos}");
-    }
+    //    Debug.Log($"Respawning to {checkpointPos}");
+    //}
 }

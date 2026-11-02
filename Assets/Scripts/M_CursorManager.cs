@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class M_CursorManager : MonoBehaviour
 {
@@ -36,6 +37,13 @@ public class M_CursorManager : MonoBehaviour
     private void HandlePauseStateChanged(bool paused)
     {
         //Debug.Log($"Cursor state changed. Paused = {paused}");
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            Cursor.visible = true;
+            return;
+        }
+
+            
 
         Cursor.lockState =
             paused

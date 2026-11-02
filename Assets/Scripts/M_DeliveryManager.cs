@@ -2,10 +2,8 @@ using System;
 using TMPro;
 using UnityEngine;
 
-public class M_DeliveryManager : MonoBehaviour
+public class M_DeliveryManager : Singleton<M_DeliveryManager>
 {
-    public static M_DeliveryManager Instance;
-
     // Events
     public event Action<ActiveDelivery> OnDeliveryStarted;
     public event Action<int> OnDeliveryCompleted;
@@ -20,15 +18,6 @@ public class M_DeliveryManager : MonoBehaviour
     private ActiveDelivery activeDelivery;
 
     public bool HasActiveDelivery => activeDelivery != null;
-
-    private void Awake()
-    {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
-    }
-
     private void Update()
     {
         if (activeDelivery == null)
@@ -39,7 +28,7 @@ public class M_DeliveryManager : MonoBehaviour
 
         statusText.text = "Holding Package";
 
-        UpdateDistanceUI();
+        //UpdateDistanceUI();
 
         if (!activeDelivery.IsOvertime)
         {
@@ -173,6 +162,8 @@ public class M_DeliveryManager : MonoBehaviour
     {
         if (activeDelivery == null)
         {
+            if (timerText.text != string.Empty)
+                timerText.text = string.Empty;
             return;
         }
 

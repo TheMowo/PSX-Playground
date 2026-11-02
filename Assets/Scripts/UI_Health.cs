@@ -48,11 +48,20 @@ public class UI_Health : MonoBehaviour
 
     private void Update()
     {
+        if (Mathf.Approximately(chunkSlider.value, targetValue))
+            return;
+
         if (chunkDelayTimer > 0f)
         {
             chunkDelayTimer -= Time.deltaTime;
             return;
         }
+
         chunkSlider.value = Mathf.Lerp(chunkSlider.value, targetValue, chunkSpeed * Time.deltaTime);
+
+        if (Mathf.Abs(chunkSlider.value - targetValue) < 0.01f)
+        {
+            chunkSlider.value = targetValue;
+        }
     }
 }
