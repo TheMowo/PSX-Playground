@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{e83b893d-961c-43de-839c-f151baee9bdf}">
+		<property name="assetPath">
+			<value>SFX/Footsteps/wallking9_00_003.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.11115646258503402</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{85ad9a0b-0e77-4f3d-b9f8-4348858eeac7}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -10,7 +10,7 @@ public class DeathBarrier : MonoBehaviour
         {
             if (sendToLastCheckpoint && M_CheckpointManager.Instance != null && M_CheckpointManager.Instance.HasCheckpoint())
             {
-                player.GetComponent<PlayerHealth>().TakeDamage(50);
+                player.GetComponent<PlayerHealth>().TakeDamage(25);
                 player.GetComponent<PlayerRespawn>().RespawnAtCheckpoint();
                 return;
             }

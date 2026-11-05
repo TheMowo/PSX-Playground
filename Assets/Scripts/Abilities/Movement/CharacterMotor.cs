@@ -51,11 +51,11 @@ public class CharacterMotor : MonoBehaviour
     private GameObject debugCanvas;
     private TextMeshProUGUI debugText_playerState;
 
-    [SerializeField]
-    private TextMeshProUGUI debugText_currentSpeed;
+    [SerializeField] private TextMeshProUGUI debugText_currentSpeed;
 
-    [SerializeField]
-    private TextMeshProUGUI debugText_currentState;
+    [SerializeField] private TextMeshProUGUI debugText_currentState;
+
+    [SerializeField] private PlayerAudio playerAudio;
 
     private Vector3 velocity;
     private Vector3 inputDir;
@@ -76,6 +76,9 @@ public class CharacterMotor : MonoBehaviour
 
         controller = GetComponent<CharacterController>();
 
+        if (!playerAudio)
+            playerAudio = GetComponent<PlayerAudio>();
+
         if (!debugCanvas)
             debugCanvas = GameObject.FindGameObjectWithTag("DebugCanvas");
 
@@ -84,6 +87,7 @@ public class CharacterMotor : MonoBehaviour
 
         characterCenter = controller.center;
         Debug.Log($"Center: {controller.center}");
+
     }
 
     private void Start()
@@ -218,6 +222,8 @@ public class CharacterMotor : MonoBehaviour
 
         jumpBufferCounter = 0f;
         coyoteCounter = 0f;
+
+        playerAudio?.PlayJump();
     }
 
     #endregion
@@ -304,6 +310,8 @@ public class CharacterMotor : MonoBehaviour
 
         lastDashTime = Time.time;
         isDashing = true;
+
+        playerAudio?.PlayDash();
 
         Vector3 dashDirection =
             inputDir.magnitude > 0.1f
