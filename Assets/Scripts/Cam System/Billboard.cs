@@ -4,9 +4,16 @@ using UnityEngine;
 public class Billboard : MonoBehaviour
 {
     [SerializeField] private bool useActiveCam;
+
+    [Header("Rotation Limit")]
+    [SerializeField] private bool restrictRotation;
+    [SerializeField] private float maxAngleFromStart = 45f;
+
     private CinemachineCamera mainCamera;
     private CinemachineCamera activeCam;
-    private bool isWorldCanvas = false;
+    private bool isWorldCanvas;
+
+    private float startingYRotation;
 
     void Start()
     {
@@ -14,15 +21,17 @@ public class Billboard : MonoBehaviour
 
         if (GetComponent<Canvas>())
             isWorldCanvas = true;
+
+        startingYRotation = transform.eulerAngles.y;
     }
 
     void LateUpdate()
     {
         Vector3 direction;
+
         if (useActiveCam)
         {
             activeCam = M_CameraManager.Instance.ActiveCamera;
-            // Get direction to camera
             direction = activeCam.transform.position - transform.position;
         }
         else
@@ -30,18 +39,24 @@ public class Billboard : MonoBehaviour
             direction = mainCamera.transform.position - transform.position;
         }
 
-        // Zero out vertical difference (Y axis)
         direction.y = 0f;
 
-        // If direction is not zero, rotate towards it
         if (direction.sqrMagnitude > 0.001f)
         {
-            Quaternion rotation = Quaternion.LookRotation(direction);
-            if (isWorldCanvas)
+            Quaternion rotation = isWorldCanvas
+                ? Quaternion.LookRotation(-direction)
+                : Quaternion.LookRotation(direction);
+
+            if (restrictRotation)
             {
-                // Invert the facing direction for world-space canvases
-                rotation = Quaternion.LookRotation(-direction);
+                float targetY = rotation.eulerAngles.y;
+
+                float delta = Mathf.DeltaAngle(startingYRotation, targetY);
+                delta = Mathf.Clamp(delta, -maxAngleFromStart, maxAngleFromStart);
+
+                rotation = Quaternion.Euler(0f, startingYRotation + delta, 0f);
             }
+
             transform.rotation = rotation;
         }
     }

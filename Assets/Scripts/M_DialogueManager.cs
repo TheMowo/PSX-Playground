@@ -1,58 +1,126 @@
+using Ink.Runtime;
 using UnityEngine;
+using System;
 
-public class M_DialogueManager : MonoBehaviour
+public class M_DialogueManager : Singleton<M_DialogueManager>
 {
-    public static M_DialogueManager Instance { get; private set; }
+    public event Action<I_NPC> DialogueStarted;
+    public event Action DialogueEnded;
 
-    [SerializeField] private GameObject dialogueBox;
-
+    private Story currentStory;
     private I_NPC currentNPC;
 
-    public bool IsDialogueOpen => dialogueBox != null && dialogueBox.activeSelf;
+    public bool IsDialogueOpen => currentStory != null;
 
-    private void Awake()
-    {
-        Instance = this;
-    }
+    public Story CurrentStory => currentStory;
+
+    public I_NPC CurrentNPC => currentNPC;
 
     public void StartDialogue(I_NPC npc)
     {
-        currentNPC = npc;
+        if (IsDialogueOpen)
+            return;
 
-        dialogueBox.SetActive(true);
+        if (npc == null || npc.InkJSON == null)
+            return;
+
+        currentNPC = npc;
+        currentStory = new Story(npc.InkJSON.text);
+
+        BindExternalFunctions();
+
+        UI_Dialogue.Instance.Show();
 
         M_GameManager.Instance.AddPauseReason(M_GameManager.PauseReason.Dialogue);
 
         PlayerPublicRef.Instance.GetComponent<InteractionAbility>().enabled = false;
+
+        DialogueStarted?.Invoke(currentNPC);
+
+        ContinueStory();
     }
 
-    public void EndDialogue()
+    private void BindExternalFunctions()
     {
-        dialogueBox.SetActive(false);
-
-        currentNPC = null;
-
-        M_GameManager.Instance.RemovePauseReason(
-            M_GameManager.PauseReason.Dialogue);
-
-        PlayerPublicRef.Instance
-            .GetComponent<InteractionAbility>()
-            .enabled = true;
+        currentStory.BindExternalFunction(
+            "StartDelivery",
+            StartDelivery);
     }
 
-    public void AcceptDelivery()
+    private void UnbindExternalFunctions()
+    {
+        if (currentStory == null)
+            return;
+
+        currentStory.UnbindExternalFunction("StartDelivery");
+    }
+
+    private void StartDelivery()
     {
         if (currentNPC == null)
             return;
 
-        Transform destination =
-            M_DeliveryLocationManager.Instance
-            .GetRandomDestination();
+        Transform destination = M_DeliveryLocationManager.Instance.GetRandomDestination();
 
-        M_DeliveryManager.Instance.StartDelivery(
-            currentNPC.DeliveryData,
-            destination);
+        M_DeliveryManager.Instance.StartDelivery(currentNPC.DeliveryData, destination);
+    }
+
+    public void ContinueStory()
+    {
+        Debug.Log($"CanContinue: {currentStory.canContinue}");
+        Debug.Log($"Choices: {currentStory.currentChoices.Count}");
+
+        if (currentStory == null)
+            return;
+
+        if (currentStory.canContinue)
+        {
+            string line = currentStory.Continue().Trim();
+
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                ContinueStory();
+                return;
+            }
+
+            UI_Dialogue.Instance.ShowLine(currentNPC.NPCName, line);
+
+            return;
+        }
+
+        if (currentStory.currentChoices.Count > 0)
+        {
+            UI_Dialogue.Instance.ShowChoices(currentStory.currentChoices);
+
+            return;
+        }
 
         EndDialogue();
+    }
+
+    public void SelectChoice(int choiceIndex)
+    {
+        if (currentStory == null)
+            return;
+
+        currentStory.ChooseChoiceIndex(choiceIndex);
+
+        ContinueStory();
+    }
+
+    public void EndDialogue()
+    {
+        UI_Dialogue.Instance.Hide();
+
+        UnbindExternalFunctions();
+
+        currentStory = null;
+        currentNPC = null;
+
+        M_GameManager.Instance.RemovePauseReason(M_GameManager.PauseReason.Dialogue);
+
+        PlayerPublicRef.Instance.GetComponent<InteractionAbility>().enabled = true;
+
+        DialogueEnded?.Invoke();
     }
 }

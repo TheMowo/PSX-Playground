@@ -4,7 +4,7 @@ public class DialogueMenuButtons : MonoBehaviour
 {
     public void Button_AcceptDelivery()
     {
-        M_DialogueManager.Instance.AcceptDelivery();
+        //M_DialogueManager.Instance.AcceptDelivery();
     }
 
     public void Button_Leave()

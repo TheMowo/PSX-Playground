@@ -18,6 +18,7 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
     private ActiveDelivery activeDelivery;
 
     public bool HasActiveDelivery => activeDelivery != null;
+
     private void Update()
     {
         if (activeDelivery == null)
@@ -50,9 +51,7 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
         UpdateUI();
     }
 
-    public void StartDelivery(
-        DeliveryData data,
-        Transform destination)
+    public void StartDelivery(DeliveryData data, Transform destination)
     {
         if (HasActiveDelivery)
         {
@@ -70,13 +69,9 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
 
         OnDeliveryStarted?.Invoke(activeDelivery);
 
-        M_InventoryManager.Instance.AddItem(
-            data.packageItem,
-            1);
+        M_InventoryManager.Instance.AddItem(data.packageItem, 1);
 
-        Debug.Log(
-            $"Started delivery: {data.deliveryName}" +
-            $" -> {destination.name}");
+        Debug.Log($"Started delivery: {data.deliveryName}" + $" -> {destination.name}");
     }
 
     public void CompleteDelivery()
@@ -84,8 +79,7 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
         if (activeDelivery == null)
             return;
 
-        if (!M_InventoryManager.Instance.HasItem(
-                activeDelivery.Data.packageItem))
+        if (!M_InventoryManager.Instance.HasItem(activeDelivery.Data.packageItem))
         {
             Debug.LogWarning("Cannot complete delivery. Package missing.");
             return;
@@ -97,9 +91,7 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
 
         M_CurrencyManager.Instance.AddMoney(reward);
 
-        M_InventoryManager.Instance.RemoveItem(
-            activeDelivery.Data.packageItem,
-            1);
+        M_InventoryManager.Instance.RemoveItem(activeDelivery.Data.packageItem, 1);
 
         OnDeliveryCompleted?.Invoke(reward);
 
@@ -115,12 +107,9 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
 
         Debug.Log("Delivery cancelled.");
 
-        if (M_InventoryManager.Instance.HasItem(
-                activeDelivery.Data.packageItem))
+        if (M_InventoryManager.Instance.HasItem(activeDelivery.Data.packageItem))
         {
-            M_InventoryManager.Instance.RemoveItem(
-                activeDelivery.Data.packageItem,
-                1);
+            M_InventoryManager.Instance.RemoveItem(activeDelivery.Data.packageItem, 1);
         }
 
         OnDeliveryCancelled?.Invoke();
@@ -138,9 +127,7 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
 
     private int CalculateReward()
     {
-        int penalty =
-            Mathf.RoundToInt(activeDelivery.Overtime) *
-            activeDelivery.Data.overtimePenaltyPerSecond;
+        int penalty = Mathf.RoundToInt(activeDelivery.Overtime) * activeDelivery.Data.overtimePenaltyPerSecond;
 
         int reward =
             activeDelivery.Data.baseReward - penalty;
@@ -169,28 +156,19 @@ public class M_DeliveryManager : Singleton<M_DeliveryManager>
 
         if (!activeDelivery.IsOvertime)
         {
-            int minutes =
-                Mathf.FloorToInt(
-                    activeDelivery.TimeRemaining / 60f);
+            int minutes = Mathf.FloorToInt(activeDelivery.TimeRemaining / 60f);
 
-            int seconds =
-                Mathf.FloorToInt(
-                    activeDelivery.TimeRemaining % 60f);
+            int seconds = Mathf.FloorToInt(activeDelivery.TimeRemaining % 60f);
 
-            timerText.text =
-                $"{minutes:00}:{seconds:00}";
+            timerText.text = $"{minutes:00}:{seconds:00}";
         }
         else
         {
-            int overtime =
-                Mathf.FloorToInt(
-                    activeDelivery.Overtime);
+            int overtime = Mathf.FloorToInt(activeDelivery.Overtime);
 
-            int reward =
-                CalculateReward();
+            int reward = CalculateReward();
 
-            timerText.text =
-                $"OVERTIME +{overtime}s | ${reward}";
+            timerText.text = $"OVERTIME +{overtime}s | ${reward}";
         }
     }
 

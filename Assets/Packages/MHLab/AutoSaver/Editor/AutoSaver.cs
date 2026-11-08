@@ -103,7 +103,9 @@ public class AutoSaver
     {
         _lastAutosaveTime = DateTime.Now;
         EditorApplication.update += OnUpdate;
+#pragma warning disable CS0618 // Type or member is obsolete
         EditorApplication.playmodeStateChanged += OnEnterInPlayMode;
+#pragma warning restore CS0618 // Type or member is obsolete
         IsEnabled = true;
         if (IsDebugEnabled) Debug.Log("AutoSaver: ON");
     }
@@ -114,7 +116,9 @@ public class AutoSaver
     public static void DeactivateAutosaver()
     {
         EditorApplication.update -= OnUpdate;
+#pragma warning disable CS0618 // Type or member is obsolete
         EditorApplication.playmodeStateChanged -= OnEnterInPlayMode;
+#pragma warning restore CS0618 // Type or member is obsolete
         IsEnabled = false;
         if (IsDebugEnabled) Debug.Log("AutoSaver: OFF");
     }
