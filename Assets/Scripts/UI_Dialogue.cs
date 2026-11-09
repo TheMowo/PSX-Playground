@@ -23,8 +23,15 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
     [SerializeField] private float charactersPerSecond = 40f;
     [SerializeField] private float punctuationPause = 0.15f;
 
+    [Header("Input")]
+    [SerializeField] private float submitCooldown = 0.05f;
+
     private Coroutine typewriterRoutine;
     private bool isTyping;
+
+    private int lastSubmitFrame = -1;
+    private float lastSubmitTime;
+    private int suppressSubmitUntilFrame = -1;
 
     public bool IsTyping => isTyping;
 
@@ -71,6 +78,10 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
         npcNameText.text = "";
 
         isTyping = false;
+
+        lastSubmitFrame = -1;
+        lastSubmitTime = 0f;
+        suppressSubmitUntilFrame = -1;
 
         root.SetActive(false);
     }
@@ -154,6 +165,18 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
         if (!M_DialogueManager.Instance.IsDialogueOpen)
             return;
 
+        if (Time.frameCount == lastSubmitFrame)
+            return;
+
+        if (Time.unscaledTime - lastSubmitTime < submitCooldown)
+            return;
+
+        lastSubmitFrame = Time.frameCount;
+        lastSubmitTime = Time.unscaledTime;
+
+        if (Time.frameCount <= suppressSubmitUntilFrame)
+            return;
+
         if (HasVisibleChoices())
             return;
 
@@ -194,6 +217,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
     public void ShowChoices(List<Choice> choices)
     {
         ClearChoices();
+
+        suppressSubmitUntilFrame = Time.frameCount + 1;
 
         if (choices.Count > choiceButtons.Length)
         {

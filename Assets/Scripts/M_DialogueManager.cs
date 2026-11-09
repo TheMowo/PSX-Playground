@@ -67,8 +67,9 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
     public void ContinueStory()
     {
-        Debug.Log($"CanContinue: {currentStory.canContinue}");
-        Debug.Log($"Choices: {currentStory.currentChoices.Count}");
+        Debug.Log("ContinueStory Called");
+        Debug.Log($"canContinue: {currentStory.canContinue}");
+        Debug.Log($"choices: {currentStory.currentChoices.Count}");
 
         if (currentStory == null)
             return;
@@ -100,6 +101,8 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
     public void SelectChoice(int choiceIndex)
     {
+        Debug.Log($"Choice Selected: {choiceIndex}");
+
         if (currentStory == null)
             return;
 

@@ -281,7 +281,7 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (!context.performed)
             return;
 
-        Debug.Log("Submit Performed");
+        //Debug.Log("Submit Performed");
 
         SubmitPressed = true;
         SubmitPerformed?.Invoke();
