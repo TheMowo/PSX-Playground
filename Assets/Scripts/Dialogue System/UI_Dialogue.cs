@@ -25,6 +25,7 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
 
     [Header("Input")]
     [SerializeField] private float submitCooldown = 0.05f;
+    [SerializeField] private float dialogueOpenSubmitBlockTime = 0.25f;
     [SerializeField] private float choiceOpenSubmitBlockTime = 0.15f;
 
     private Coroutine typewriterRoutine;
@@ -63,6 +64,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
     public void Show()
     {
         root.SetActive(true);
+
+        suppressSubmitUntilTime = Time.unscaledTime + dialogueOpenSubmitBlockTime;
     }
 
     public void Hide()
