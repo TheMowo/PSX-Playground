@@ -2551,7 +2551,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 129.93906, y: -41.3229}
+  m_AnchoredPosition: {x: 129.93896, y: -41.322998}
   m_SizeDelta: {x: 219.8781, y: 62.6458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &61596599
@@ -6867,9 +6867,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.5921569, g: 0.5921569, b: 0.5921569, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.6528301, g: 0.6528301, b: 0.6528301, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -8625,6 +8625,7 @@ MonoBehaviour:
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 447
+  interactionBlockDuration: 0.25
 --- !u!114 &342644874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10658,42 +10659,49 @@ MonoBehaviour:
       Data2: 1111062905
       Data3: -97412948
       Data4: -1780067047
-    Path: event:/Move
+    Path: event:/Player/Move
   playerJumpEvent:
     Guid:
       Data1: 944036573
       Data2: 1281673606
       Data3: -189222758
       Data4: -1563609854
-    Path: event:/Jump
+    Path: event:/Player/Jump
   playerLandEvent:
     Guid:
       Data1: 1687435953
       Data2: 1076498934
       Data3: 1535868563
       Data4: 1963304407
-    Path: event:/Land
+    Path: event:/Player/Land
   playerDashEvent:
     Guid:
       Data1: -1890733909
       Data2: 1108717972
       Data3: -444627316
       Data4: 1841354295
-    Path: event:/Dash
+    Path: event:/Player/Dash
   playerDamageEvent:
     Guid:
       Data1: 860000201
       Data2: 1238392815
       Data3: -1439655502
       Data4: -394908317
-    Path: event:/Damage
+    Path: event:/Player/Damage
   playerDeathEvent:
     Guid:
       Data1: -832571480
       Data2: 1109879907
       Data3: -1487801170
       Data4: 1387701642
-    Path: event:/Death
+    Path: event:/Player/Death
+  uiTypewriterSound:
+    Guid:
+      Data1: -449611445
+      Data2: 1213558625
+      Data3: -371975032
+      Data4: -1711578792
+    Path: event:/Dialogue
 --- !u!4 &407152913
 Transform:
   m_ObjectHideFlags: 0
@@ -11464,7 +11472,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -26.364136}
+  m_AnchoredPosition: {x: 0, y: -26.364258}
   m_SizeDelta: {x: -40.3011, y: -102.0385}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &418137131
@@ -18508,9 +18516,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.5921569, g: 0.5921569, b: 0.5921569, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.6528301, g: 0.6528301, b: 0.6528301, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -30333,9 +30341,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.5921569, g: 0.5921569, b: 0.5921569, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.6528301, g: 0.6528301, b: 0.6528301, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -31296,7 +31304,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 185.135, y: -342.1063}
+  m_AnchoredPosition: {x: 185.13477, y: -342.1062}
   m_SizeDelta: {x: 330.27, y: 62.6458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &928344443
@@ -44104,7 +44112,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 177.29565, y: -34.789307}
+  m_AnchoredPosition: {x: 177.2959, y: -34.789307}
   m_SizeDelta: {x: -394.8924, y: -169.4408}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1362421845
@@ -48017,7 +48025,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -9.355103}
+  m_AnchoredPosition: {x: 0, y: -9.35498}
   m_SizeDelta: {x: -1100.9575, y: -584.969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1447579128
@@ -53483,7 +53491,9 @@ MonoBehaviour:
   - {fileID: 1253274855}
   - {fileID: 943171632}
   charactersPerSecond: 40
-  punctuationPause: 0.15
+  punctuationPause: 0.3
+  submitCooldown: 0.05
+  choiceOpenSubmitBlockTime: 0.15
 --- !u!1 &1628513074
 GameObject:
   m_ObjectHideFlags: 0
@@ -57928,9 +57938,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.5921569, g: 0.5921569, b: 0.5921569, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.6528301, g: 0.6528301, b: 0.6528301, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -63974,7 +63984,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -9.355103}
+  m_AnchoredPosition: {x: 0, y: -9.35498}
   m_SizeDelta: {x: -1425.0176, y: -374.58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1862752827
@@ -65678,7 +65688,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 185.13501, y: -266.91043}
+  m_AnchoredPosition: {x: 185.13477, y: -266.9104}
   m_SizeDelta: {x: 330.27, y: 62.6458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1944524669

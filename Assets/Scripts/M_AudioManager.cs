@@ -14,6 +14,8 @@ public class M_AudioManager : Singleton<M_AudioManager>
     [SerializeField] private EventReference playerDamageEvent;
     [SerializeField] private EventReference playerDeathEvent;
 
+    [SerializeField] private EventReference uiTypewriterSound;
+
     #endregion
 
     #region Player Play Methods
@@ -56,6 +58,11 @@ public class M_AudioManager : Singleton<M_AudioManager>
     public void PlayPlayerDeath(GameObject player)
     {
         PlayAttachedOneShot(playerDeathEvent, player);
+    }
+
+    public void PlayTypewriterClack()
+    {
+        PlayGenericOneShot(uiTypewriterSound);
     }
 
     #endregion

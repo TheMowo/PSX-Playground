@@ -196,6 +196,8 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (!context.performed)
             return;
 
+        Debug.Log("INTERACT INPUT FIRED");
+
         InteractPressed = true;
         InteractPerformed?.Invoke();
     }
