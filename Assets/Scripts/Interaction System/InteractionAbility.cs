@@ -65,23 +65,22 @@ public class InteractionAbility : MonoBehaviour
 
     private void OnInteractPressed()
     {
-        Debug.Log("INTERACT EVENT RECEIVED");
 
         if (Time.unscaledTime < interactionBlockedUntil)
         {
-            Debug.Log("Interaction blocked");
+            //Debug.Log("Interaction blocked");
             return;
         }
 
         if (!canInteract)
         {
-            Debug.Log("Cannot interact");
+            //Debug.Log("Cannot interact");
             return;
         }
 
         if (currentTargetInteractable == null)
         {
-            Debug.Log("No interactable");
+            //Debug.Log("No interactable");
             return;
         }
 

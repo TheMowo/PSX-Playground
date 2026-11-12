@@ -1,21 +1,14 @@
 using TMPro;
 using UnityEngine;
 
-public class M_ObjectiveManager : MonoBehaviour
+public class M_ObjectiveManager : Singleton<M_ObjectiveManager>
 {
-    public static M_ObjectiveManager Instance;
-
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI timerText;
 
     private float remainingTime;
     private bool timerRunning;
     private Transform currentDestination;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     private void Update()
     {

@@ -12,13 +12,18 @@ namespace Birno
         [SerializeField, Multiline(2)] private string notes;
 
         [Header("Squash and Stretch Core")]
-        [SerializeField, Tooltip("Defaults to current GO if not set.")/*, ChildGameObjectsOnly*/] private List<Transform> transformToAffect = new List<Transform>();
+        [SerializeField, Tooltip("Defaults to current GO if not set.")]
+        private List<Transform> transformToAffect = new();
+
         [SerializeField] private SquashStretchAxis axisToAffect = SquashStretchAxis.Y;
         [SerializeField, Range(0, 1f), SuffixLabel("s", true)] private float animationDuration = 0.25f;
         [SerializeField] private bool canBeOverwritten;
         [SerializeField] private bool playOnStart;
         [SerializeField] private bool playsEveryTime = true;
         [SerializeField, Range(0, 100f), SuffixLabel("%", true)] private float chanceToPlay = 100f;
+
+        [Header("Timing")]
+        [SerializeField] private bool useUnscaledTime = true;
 
         [Flags]
         public enum SquashStretchAxis
@@ -29,77 +34,64 @@ namespace Birno
             Z = 4
         }
 
-
         [Header("Animation Settings")]
         [SerializeField] private float initialScale = 1f;
         [SerializeField] private float maximumScale = 1.3f;
         [SerializeField] private bool resetToInitialScaleAfterAnimation = true;
         [SerializeField] private bool reverseAnimationCurveAfterPlaying;
-        private bool _isReversed;
+
+        private bool isReversed;
 
         [SerializeField]
-        private AnimationCurve squashAndStretchCurve = new AnimationCurve(
+        private AnimationCurve squashAndStretchCurve = new(
             new Keyframe(0f, 0f),
             new Keyframe(0.25f, 1f),
             new Keyframe(1f, 0f)
         );
 
-
         [Header("Looping Settings")]
         [SerializeField] private bool looping;
         [SerializeField, SuffixLabel("sec", true)] private float loopingDelay = 0.5f;
 
+        private Coroutine squashAndStretchCoroutine;
+        private Vector3 initialScaleVector;
 
-        private Coroutine _squashAndStretchCoroutine;
-        private WaitForSeconds _loopingDelayWaitForSeconds;
-        private Vector3 _initialScaleVector;
+        private bool AffectX => (axisToAffect & SquashStretchAxis.X) != 0;
+        private bool AffectY => (axisToAffect & SquashStretchAxis.Y) != 0;
+        private bool AffectZ => (axisToAffect & SquashStretchAxis.Z) != 0;
 
-
-        private bool affectX => (axisToAffect & SquashStretchAxis.X) != 0;
-        private bool affectY => (axisToAffect & SquashStretchAxis.Y) != 0;
-        private bool affectZ => (axisToAffect & SquashStretchAxis.Z) != 0;
-
-
-        private static event Action _squashAndStretchAllObjectsLikeThis;
-
-
+        private static event Action SquashAndStretchAllObjectsLikeThisEvent;
 
         private void Awake()
         {
-            if (transformToAffect == null)
+            if (transformToAffect == null || transformToAffect.Count == 0)
             {
-                foreach (Transform t in transformToAffect)
+                transformToAffect = new List<Transform>
                 {
-                    transformToAffect[transformToAffect.IndexOf(t)] = transform;
-                }
+                    transform
+                };
             }
 
-            foreach (Transform t in transformToAffect)
-            {
-                _initialScaleVector = transformToAffect[transformToAffect.IndexOf(t)].localScale;
-            }
-            _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
+            initialScaleVector = transformToAffect[0].localScale;
         }
 
         public static void SquashAndStretchAllObjectsLikeThis()
         {
-            _squashAndStretchAllObjectsLikeThis?.Invoke();
+            SquashAndStretchAllObjectsLikeThisEvent?.Invoke();
         }
 
         private void OnEnable()
         {
-            _squashAndStretchAllObjectsLikeThis += PlaySquashAndStretch;
+            SquashAndStretchAllObjectsLikeThisEvent += PlaySquashAndStretch;
         }
 
         private void OnDisable()
         {
-            if (_squashAndStretchCoroutine != null)
-                StopCoroutine(_squashAndStretchCoroutine);
+            if (squashAndStretchCoroutine != null)
+                StopCoroutine(squashAndStretchCoroutine);
 
-            _squashAndStretchAllObjectsLikeThis -= PlaySquashAndStretch;
+            SquashAndStretchAllObjectsLikeThisEvent -= PlaySquashAndStretch;
         }
-
-
 
         private void Start()
         {
@@ -107,7 +99,8 @@ namespace Birno
                 CheckForAndStartCoroutine();
         }
 
-        [PropertySpace(25), Button]
+        [PropertySpace(25)]
+        [Button]
         [ContextMenu("Play Squash and Stretch")]
         public void PlaySquashAndStretch()
         {
@@ -125,21 +118,21 @@ namespace Birno
                 return;
             }
 
-            if (_squashAndStretchCoroutine != null)
+            if (squashAndStretchCoroutine != null)
             {
-                StopCoroutine(_squashAndStretchCoroutine);
+                StopCoroutine(squashAndStretchCoroutine);
+
                 if (playsEveryTime && resetToInitialScaleAfterAnimation)
                 {
-                    foreach (Transform t in transformToAffect)
+                    foreach (Transform target in transformToAffect)
                     {
-                        transformToAffect[transformToAffect.IndexOf(t)].localScale = _initialScaleVector;
+                        target.localScale = initialScaleVector;
                     }
                 }
             }
 
-            _squashAndStretchCoroutine = StartCoroutine(SquashAndStretchEffect());
+            squashAndStretchCoroutine = StartCoroutine(SquashAndStretchEffect());
         }
-
 
         private IEnumerator SquashAndStretchEffect()
         {
@@ -147,7 +140,8 @@ namespace Birno
             {
                 if (!playsEveryTime)
                 {
-                    float random = UnityEngine.Random.Range(0, 100f);
+                    float random = UnityEngine.Random.Range(0f, 100f);
+
                     if (random > chanceToPlay)
                     {
                         yield return null;
@@ -156,48 +150,54 @@ namespace Birno
                 }
 
                 if (reverseAnimationCurveAfterPlaying)
-                    _isReversed = !_isReversed;
+                    isReversed = !isReversed;
 
-                float elapsedTime = 0;
-                Vector3 originalScale = _initialScaleVector;
+                float elapsedTime = 0f;
+
+                Vector3 originalScale = initialScaleVector;
                 Vector3 modifiedScale = originalScale;
 
                 while (elapsedTime < animationDuration)
                 {
-                    elapsedTime += Time.deltaTime;
+                    elapsedTime += useUnscaledTime
+                        ? Time.unscaledDeltaTime
+                        : Time.deltaTime;
 
                     float curvePosition;
 
-                    if (_isReversed)
-                        curvePosition = 1 - (elapsedTime / animationDuration);
+                    if (isReversed)
+                        curvePosition = 1f - (elapsedTime / animationDuration);
                     else
                         curvePosition = elapsedTime / animationDuration;
 
                     float curveValue = squashAndStretchCurve.Evaluate(curvePosition);
-                    float remappedValue = initialScale + (curveValue * (maximumScale - initialScale));
 
-                    float minimumThreshold = 0.0001f;
+                    float remappedValue =
+                        initialScale + (curveValue * (maximumScale - initialScale));
+
+                    const float minimumThreshold = 0.0001f;
+
                     if (Mathf.Abs(remappedValue) < minimumThreshold)
                         remappedValue = minimumThreshold;
 
-                    if (affectX)
+                    if (AffectX)
                         modifiedScale.x = originalScale.x * remappedValue;
                     else
                         modifiedScale.x = originalScale.x / remappedValue;
 
-                    if (affectY)
+                    if (AffectY)
                         modifiedScale.y = originalScale.y * remappedValue;
                     else
                         modifiedScale.y = originalScale.y / remappedValue;
 
-                    if (affectZ)
+                    if (AffectZ)
                         modifiedScale.z = originalScale.z * remappedValue;
                     else
                         modifiedScale.z = originalScale.z / remappedValue;
 
-                    foreach (Transform t in transformToAffect)
+                    foreach (Transform target in transformToAffect)
                     {
-                        transformToAffect[transformToAffect.IndexOf(t)].localScale = modifiedScale;
+                        target.localScale = modifiedScale;
                     }
 
                     yield return null;
@@ -205,31 +205,39 @@ namespace Birno
 
                 if (resetToInitialScaleAfterAnimation)
                 {
-                    foreach (Transform t in transformToAffect)
+                    foreach (Transform target in transformToAffect)
                     {
-                        transformToAffect[transformToAffect.IndexOf(t)].localScale = originalScale;
+                        target.localScale = originalScale;
                     }
                 }
 
-
                 if (looping)
                 {
-                    yield return _loopingDelayWaitForSeconds;
+                    if (useUnscaledTime)
+                        yield return new WaitForSecondsRealtime(loopingDelay);
+                    else
+                        yield return new WaitForSeconds(loopingDelay);
                 }
-            } while (looping);
-        }
 
+            } while (looping);
+
+            squashAndStretchCoroutine = null;
+        }
 
         public void SetLooping(bool shouldLoop)
         {
             looping = shouldLoop;
         }
 
-
-
-
-        public void Setup(SquashStretchAxis axis, float time, float zeroMap, float oneMap, AnimationCurve curve,
-            bool loop, float delay, bool playImmediately = false)
+        public void Setup(
+            SquashStretchAxis axis,
+            float time,
+            float zeroMap,
+            float oneMap,
+            AnimationCurve curve,
+            bool loop,
+            float delay,
+            bool playImmediately = false)
         {
             axisToAffect = axis;
             animationDuration = time;
@@ -238,8 +246,6 @@ namespace Birno
             squashAndStretchCurve = curve;
             looping = loop;
             loopingDelay = delay;
-
-            _loopingDelayWaitForSeconds = new WaitForSeconds(loopingDelay);
 
             if (playImmediately)
                 CheckForAndStartCoroutine();

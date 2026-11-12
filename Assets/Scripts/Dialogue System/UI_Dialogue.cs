@@ -38,10 +38,16 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
     private float suppressSubmitUntilTime;
 
     public bool IsTyping => isTyping;
+    private NPCDialogueVisuals CurrentNPCVisuals => M_DialogueManager.Instance.CurrentNPC?.DialogueVisuals;
 
     protected override void Awake()
     {
         base.Awake();
+
+        if (choiceButtons.Length != choiceButtonTexts.Length)
+        {
+            Debug.LogWarning($"Choice button count ({choiceButtons.Length}) does not match choice text count ({choiceButtonTexts.Length}).");
+        }
 
         ClearChoices();
     }
@@ -84,6 +90,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
             selectButtonRoutine = null;
         }
 
+        M_DialogueManager.Instance.StopNPCTalking();
+
         dialogueText.text = "";
         dialogueText.maxVisibleCharacters = int.MaxValue;
 
@@ -113,6 +121,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
     private IEnumerator TypewriterRoutine(string line)
     {
         isTyping = true;
+
+        M_DialogueManager.Instance.StartNPCTalking();
 
         dialogueText.text = line;
         dialogueText.ForceMeshUpdate();
@@ -155,6 +165,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
 
         dialogueText.maxVisibleCharacters = int.MaxValue;
 
+        M_DialogueManager.Instance.StopNPCTalking();
+
         isTyping = false;
         typewriterRoutine = null;
     }
@@ -171,6 +183,8 @@ public class UI_Dialogue : Singleton<UI_Dialogue>
         }
 
         dialogueText.maxVisibleCharacters = int.MaxValue;
+
+        M_DialogueManager.Instance.StopNPCTalking();
 
         isTyping = false;
     }

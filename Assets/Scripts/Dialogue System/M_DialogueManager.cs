@@ -31,9 +31,11 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
         UI_Dialogue.Instance.Show();
 
-        M_GameManager.Instance.AddPauseReason(M_GameManager.PauseReason.Dialogue);
+        M_GameManager.Instance.AddPauseReason(
+            M_GameManager.PauseReason.Dialogue);
 
-        InteractionAbility interactionAbility = PlayerPublicRef.Instance.GetComponent<InteractionAbility>();
+        InteractionAbility interactionAbility =
+            PlayerPublicRef.Instance.GetComponent<InteractionAbility>();
 
         interactionAbility.BlockInteraction();
         interactionAbility.enabled = false;
@@ -41,6 +43,16 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
         OnEnterDialogue?.Invoke(currentNPC);
 
         ContinueStory();
+    }
+
+    public void StartNPCTalking()
+    {
+        currentNPC?.DialogueVisuals?.StartTalking();
+    }
+
+    public void StopNPCTalking()
+    {
+        currentNPC?.DialogueVisuals?.StopTalking();
     }
 
     private void BindExternalFunctions()
@@ -63,17 +75,16 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
         if (currentNPC == null)
             return;
 
-        Transform destination = M_DeliveryLocationManager.Instance.GetRandomDestination();
+        Transform destination =
+            M_DeliveryLocationManager.Instance.GetRandomDestination();
 
-        M_DeliveryManager.Instance.StartDelivery(currentNPC.DeliveryData, destination);
+        M_DeliveryManager.Instance.StartDelivery(
+            currentNPC.DeliveryData,
+            destination);
     }
 
     public void ContinueStory()
     {
-        //Debug.Log("ContinueStory Called");
-        //Debug.Log($"canContinue: {currentStory.canContinue}");
-        //Debug.Log($"choices: {currentStory.currentChoices.Count}");
-
         if (currentStory == null)
             return;
 
@@ -87,14 +98,17 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
                 return;
             }
 
-            UI_Dialogue.Instance.ShowLine(currentNPC.NPCName, line);
+            UI_Dialogue.Instance.ShowLine(
+                currentNPC.NPCName,
+                line);
 
             return;
         }
 
         if (currentStory.currentChoices.Count > 0)
         {
-            UI_Dialogue.Instance.ShowChoices(currentStory.currentChoices);
+            UI_Dialogue.Instance.ShowChoices(
+                currentStory.currentChoices);
 
             return;
         }
@@ -104,8 +118,6 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
     public void SelectChoice(int choiceIndex)
     {
-        Debug.Log($"Choice Selected: {choiceIndex}");
-
         if (currentStory == null)
             return;
 
@@ -116,18 +128,20 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
     public void EndDialogue()
     {
-        //Debug.Log("END DIALOGUE called");
-
         UI_Dialogue.Instance.Hide();
 
         UnbindExternalFunctions();
 
+        StopNPCTalking();
+
         currentStory = null;
         currentNPC = null;
 
-        M_GameManager.Instance.RemovePauseReason(M_GameManager.PauseReason.Dialogue);
+        M_GameManager.Instance.RemovePauseReason(
+            M_GameManager.PauseReason.Dialogue);
 
-        InteractionAbility interactionAbility = PlayerPublicRef.Instance.GetComponent<InteractionAbility>();
+        InteractionAbility interactionAbility =
+            PlayerPublicRef.Instance.GetComponent<InteractionAbility>();
 
         interactionAbility.enabled = true;
         interactionAbility.BlockInteraction();

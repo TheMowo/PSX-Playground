@@ -1,23 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class M_CursorManager : MonoBehaviour
+public class M_CursorManager : Singleton<M_CursorManager>
 {
-    public static M_CursorManager Instance { get; private set; }
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
-        DontDestroyOnLoad(gameObject);
-    }
-
     private void OnEnable()
     {
         M_GameManager.PauseStateChanged += HandlePauseStateChanged;

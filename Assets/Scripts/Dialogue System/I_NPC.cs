@@ -7,6 +7,7 @@ public class I_NPC : MonoBehaviour, IInteractable
 
     [Header("Dialogue")]
     [SerializeField] private TextAsset inkJSON;
+    [SerializeField] private NPCDialogueVisuals dialogueVisuals;
 
     [Header("Delivery")]
     [SerializeField] private DeliveryData deliveryData;
@@ -14,6 +15,7 @@ public class I_NPC : MonoBehaviour, IInteractable
     public string NPCName => npcName;
     public TextAsset InkJSON => inkJSON;
     public DeliveryData DeliveryData => deliveryData;
+    public NPCDialogueVisuals DialogueVisuals => dialogueVisuals;
 
     public void Interact()
     {

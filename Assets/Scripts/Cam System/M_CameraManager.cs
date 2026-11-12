@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine.Events;
 
-public class M_CameraManager : MonoBehaviour
+public class M_CameraManager : Singleton<M_CameraManager>
 {
-    public static M_CameraManager Instance { get; private set; }
-
     private readonly List<CinemachineCamera> cameras = new List<CinemachineCamera>();
     private CinemachineCamera _activeCamera;
     public CinemachineCamera ActiveCamera => _activeCamera;
@@ -26,14 +24,9 @@ public class M_CameraManager : MonoBehaviour
     // UnityEvent for other scripts to subscribe to
     public UnityEvent<CinemachineCamera> OnBlendFinishedEvent;
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
+        base.Awake();
 
         _brain = FindAnyObjectByType<CinemachineBrain>();
 

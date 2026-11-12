@@ -1,21 +1,8 @@
 using UnityEngine;
 
-public class M_PauseMenuManager : MonoBehaviour
+public class M_PauseMenuManager : Singleton<M_PauseMenuManager>
 {
-    public static M_PauseMenuManager Instance { get; private set; }
-
     [SerializeField] private GameObject pauseMenu;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
     private void Start()
     {
         if (M_InputManager.Instance != null)

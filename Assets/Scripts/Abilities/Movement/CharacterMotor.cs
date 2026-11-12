@@ -26,6 +26,7 @@ public class CharacterMotor : MonoBehaviour
     [Header("Air Control")]
     [SerializeField] private float airAcceleration = 120f;
     [SerializeField] private float maxAirSpeed = 40f;
+    [SerializeField] private float airResistance = 0.75f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 18f;
@@ -114,6 +115,7 @@ public class CharacterMotor : MonoBehaviour
 
         HandleJumpBuffer();
         HandleAirControl();
+        ApplyAirResistance();
         ApplyGravity();
         ApplyFriction();
 
@@ -268,14 +270,18 @@ public class CharacterMotor : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 airInput = (forward * moveInput.y + right * moveInput.x).normalized;
+        Vector3 airInput =
+            (forward * moveInput.y + right * moveInput.x).normalized;
 
         if (airInput.sqrMagnitude < 0.01f)
             return;
 
-        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
+        Vector3 horizontalVelocity =
+            new Vector3(velocity.x, 0f, velocity.z);
 
-        float currentSpeedInDirection = Vector3.Dot(horizontalVelocity, airInput);
+        float currentSpeedInDirection =
+            Vector3.Dot(horizontalVelocity, airInput);
+
         float addSpeed = maxAirSpeed - currentSpeedInDirection;
 
         if (addSpeed <= 0f)
@@ -285,6 +291,40 @@ public class CharacterMotor : MonoBehaviour
         accelSpeed = Mathf.Min(accelSpeed, addSpeed);
 
         horizontalVelocity += airInput * accelSpeed;
+
+        horizontalVelocity = Vector3.ClampMagnitude(
+            horizontalVelocity,
+            maxAirSpeed);
+
+        velocity.x = horizontalVelocity.x;
+        velocity.z = horizontalVelocity.z;
+    }
+
+    #endregion
+
+    #region Air Resistance
+
+    private void ApplyAirResistance()
+    {
+        if (controller.isGrounded)
+            return;
+
+        if (isDashing)
+            return;
+
+        Vector3 horizontalVelocity =
+            new Vector3(velocity.x, 0f, velocity.z);
+
+        float speed = horizontalVelocity.magnitude;
+
+        if (speed <= 0f)
+            return;
+
+        float drop = speed * airResistance * Time.deltaTime;
+        speed = Mathf.Max(0f, speed - drop);
+
+        horizontalVelocity =
+            horizontalVelocity.normalized * speed;
 
         velocity.x = horizontalVelocity.x;
         velocity.z = horizontalVelocity.z;
@@ -340,9 +380,14 @@ public class CharacterMotor : MonoBehaviour
 
         SetSlideCapsule();
 
-        Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
+        Vector3 horizontalVelocity = new Vector3(
+            velocity.x,
+            0f,
+            velocity.z);
 
-        float currentSpeed = Mathf.Max(horizontalVelocity.magnitude, moveSpeed);
+        float currentSpeed =
+            Mathf.Max(horizontalVelocity.magnitude, moveSpeed);
+
         currentSpeed *= slideMultiplier;
 
         Vector3 slideDir =
@@ -350,42 +395,68 @@ public class CharacterMotor : MonoBehaviour
                 ? horizontalVelocity.normalized
                 : transform.forward;
 
-        while (currentSpeed > slideEndThreshold && M_InputManager.Instance.SlideHeld)
+        bool momentumPhase = true;
+
+        while (M_InputManager.Instance.SlideHeld)
         {
-            Transform moveReference = isFirstPerson ? transform : Camera.main.transform;
-
-            Vector2 moveInput = M_InputManager.Instance.MoveInput;
-
-            Vector3 forward = moveReference.forward;
-            Vector3 right = moveReference.right;
-
-            forward.y = 0f;
-            right.y = 0f;
-
-            forward.Normalize();
-            right.Normalize();
-
-            Vector3 steeringInput = (forward * moveInput.y + right * moveInput.x).normalized;
-
-            if (steeringInput.magnitude > 0.1f)
+            if (momentumPhase)
             {
-                slideDir = Vector3.Lerp(
-                    slideDir,
-                    steeringInput,
-                    slideSteerStrength * Time.deltaTime).normalized;
+                Transform moveReference =
+                    isFirstPerson
+                        ? transform
+                        : Camera.main.transform;
+
+                Vector2 moveInput =
+                    M_InputManager.Instance.MoveInput;
+
+                Vector3 forward = moveReference.forward;
+                Vector3 right = moveReference.right;
+
+                forward.y = 0f;
+                right.y = 0f;
+
+                forward.Normalize();
+                right.Normalize();
+
+                Vector3 steeringInput =
+                    (forward * moveInput.y +
+                     right * moveInput.x).normalized;
+
+                if (steeringInput.magnitude > 0.1f)
+                {
+                    slideDir = Vector3.Lerp(
+                        slideDir,
+                        steeringInput,
+                        slideSteerStrength * Time.deltaTime
+                    ).normalized;
+                }
+
+                currentSpeed *= slideDecay;
+
+                velocity = slideDir * currentSpeed +
+                           Vector3.up * velocity.y;
+
+                if (jumpBufferCounter > 0f &&
+                    coyoteCounter > 0f)
+                {
+                    velocity = slideDir * (currentSpeed + 5f);
+
+                    Jump();
+                    break;
+                }
+
+                if (currentSpeed <= slideEndThreshold)
+                {
+                    momentumPhase = false;
+
+                    velocity.x = 0f;
+                    velocity.z = 0f;
+                }
             }
-
-            currentSpeed *= slideDecay;
-
-            velocity = slideDir * currentSpeed + Vector3.up * velocity.y;
-
-            if (jumpBufferCounter > 0f &&
-                coyoteCounter > 0f)
+            else
             {
-                velocity = slideDir * (currentSpeed + 5f);
-
-                Jump();
-                break;
+                velocity.x = 0f;
+                velocity.z = 0f;
             }
 
             yield return null;

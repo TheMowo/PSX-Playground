@@ -1,10 +1,8 @@
 using TMPro;
 using UnityEngine;
 
-public class M_CurrencyManager : MonoBehaviour
+public class M_CurrencyManager : Singleton<M_CurrencyManager>
 {
-    public static M_CurrencyManager Instance;
-
     [Header("Currency")]
     [SerializeField] private int currentMoney = 0;
 
@@ -12,17 +10,6 @@ public class M_CurrencyManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI moneyText;
 
     public int CurrentMoney => currentMoney;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
 
     private void Start()
     {

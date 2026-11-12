@@ -84,7 +84,7 @@ public class ConvertToButton : MonoBehaviour
 
         SetColor(hoverColor);
 
-        SoundManager.Instance?.PlayUIHover();
+        //SoundManager.Instance?.PlayUIHover();
     }
 
     public void HandleDeselect()
@@ -101,7 +101,7 @@ public class ConvertToButton : MonoBehaviour
     {
         SetColor(pressedColor);
 
-        SoundManager.Instance?.PlayUIClick();
+        //SoundManager.Instance?.PlayUIClick();
 
         onClick?.Invoke();
     }
