@@ -1,9 +1,10 @@
+using TMPro;
 using UnityEngine;
 
 public class M_ScoreManager : Singleton<M_ScoreManager>
 {
-    [SerializeField]
-    private ScoreDatabase database;
+    [SerializeField] private ScoreDatabase database;
+    //[SerializeField] private UI_Score scoreUI;
 
     public int CurrentScore { get; private set; }
 

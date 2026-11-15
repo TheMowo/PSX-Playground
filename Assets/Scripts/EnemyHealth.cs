@@ -17,20 +17,41 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         currentHealth = baseHealth;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
-        if (currentHealth < damage && isKillable)
+        currentHealth -= damageInfo.Damage;
+
+        if (damageInfo.DamageType == DamageType.BoomerangOutgoing)
         {
+            Debug.Log("Hit by outgoing boomerang"); //Scoring goes here
+            M_ScoreManager.Instance.AddScore(ScoreId.BoxThrow);
+        }
+        else if (damageInfo.DamageType == DamageType.BoomerangReturning)
+        {
+            Debug.Log("Hit by returning boomerang"); //Scoring goes here
+            M_ScoreManager.Instance.AddScore(ScoreId.BoxReturn);
+        }
+        else if (damageInfo.DamageType == DamageType.Dash)
+        {
+            Debug.Log("Hit by dash"); //Scoring goes here
+            M_ScoreManager.Instance.AddScore(ScoreId.Dash);
+        }
+        else if (damageInfo.DamageType == DamageType.Lava)
+        {
+            Debug.Log("Hit by lava"); //Scoring goes here
+            M_ScoreManager.Instance.AddScore(ScoreId.Lava);
+        }
+        else if (damageInfo.DamageType == DamageType.Void)
+        {
+            Debug.Log("Hit by void"); //Scoring goes here
+            M_ScoreManager.Instance.AddScore(ScoreId.Void);
+        }
+
+        if (!isKillable)
+            return;
+
+        if (currentHealth <= 0)
             Death();
-
-            SpawnHitEffect(100);
-        }
-        else
-        {
-            currentHealth -= damage;
-
-            SpawnHitEffect(damage);
-        }
     }
 
     private void Death()

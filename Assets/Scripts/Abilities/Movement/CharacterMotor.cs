@@ -71,6 +71,15 @@ public class CharacterMotor : MonoBehaviour
 
     public bool MovementEnabled { get; private set; } = true;
 
+    private void OnDestroy()
+    {
+        if (M_InputManager.Instance == null)
+            return;
+
+        M_InputManager.Instance.JumpPerformed -= OnJumpPerformed;
+        M_InputManager.Instance.DashPerformed -= OnDashPerformed;
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -94,10 +103,15 @@ public class CharacterMotor : MonoBehaviour
     private void Start()
     {
         if (debugCanvas)
+        {
             debugText_playerState =
                 debugCanvas.GetComponentInChildren<TextMeshProUGUI>();
+        }
 
         SetStandingCapsule();
+
+        M_InputManager.Instance.JumpPerformed += OnJumpPerformed;
+        M_InputManager.Instance.DashPerformed += OnDashPerformed;
     }
 
     private void Update()
@@ -106,7 +120,6 @@ public class CharacterMotor : MonoBehaviour
             return;
 
         HandleMovementInput();
-        HandleDash();
 
         if (M_InputManager.Instance.SlideHeld && !isSliding)
         {
@@ -202,20 +215,25 @@ public class CharacterMotor : MonoBehaviour
 
     #region Jump
 
+    private void OnJumpPerformed()
+    {
+        jumpBufferCounter = jumpBufferTime;
+    }
+
     private void HandleJumpBuffer()
     {
-        if (M_InputManager.Instance.JumpPressed)
-            jumpBufferCounter = jumpBufferTime;
-        else
-            jumpBufferCounter -= Time.deltaTime;
+        jumpBufferCounter -= Time.deltaTime;
 
         if (controller.isGrounded)
             coyoteCounter = coyoteTime;
         else
             coyoteCounter -= Time.deltaTime;
 
-        if (jumpBufferCounter > 0f && coyoteCounter > 0f)
+        if (jumpBufferCounter > 0f &&
+            coyoteCounter > 0f)
+        {
             Jump();
+        }
     }
 
     private void Jump()
@@ -333,13 +351,14 @@ public class CharacterMotor : MonoBehaviour
     #endregion
 
     #region Dash
+    private void OnDashPerformed()
+    {
+        TryDash();
+    }
 
-    private void HandleDash()
+    private void TryDash()
     {
         if (!MovementEnabled)
-            return;
-
-        if (!M_InputManager.Instance.DashPressed)
             return;
 
         if (isDashing)

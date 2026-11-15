@@ -10,6 +10,8 @@ public enum ScoreId
     Spikes,
     CoreCollected,
     CoreReturned,
+    AllCoresReturned,
+    Exit,
     Layoff,
     Wipeout,
     GlassBreak

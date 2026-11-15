@@ -3,6 +3,7 @@ using UnityEngine;
 public class DeathBarrier : MonoBehaviour
 {
     [SerializeField] private bool sendToLastCheckpoint = false;
+    [SerializeField] private DamageType type = DamageType.Lava;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -10,7 +11,10 @@ public class DeathBarrier : MonoBehaviour
         {
             if (sendToLastCheckpoint && M_CheckpointManager.Instance != null && M_CheckpointManager.Instance.HasCheckpoint())
             {
-                player.GetComponent<PlayerHealth>().TakeDamage(25);
+                DamageType damageType = type;
+                DamageInfo damageInfo = new DamageInfo(25, damageType, gameObject);
+
+                player.GetComponent<PlayerHealth>().TakeDamage(damageInfo);
                 player.GetComponent<PlayerRespawn>().RespawnAtCheckpoint();
                 return;
             }
@@ -18,7 +22,11 @@ public class DeathBarrier : MonoBehaviour
 
         if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
         {
-            damageable.TakeDamage(99999);
+            DamageType damageType = type;
+
+            DamageInfo damageInfo = new DamageInfo(999999, damageType, gameObject);
+
+            damageable.TakeDamage(damageInfo);
         }
     }
 }

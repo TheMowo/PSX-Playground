@@ -9,28 +9,42 @@ public class ThrowActuator : MonoBehaviour
 
     private bool weaponOut;
 
-    private void Update()
+    private void Start()
     {
-        if (Input.GetMouseButtonDown(1) && !weaponOut)
+        if (M_InputManager.Instance != null)
         {
-            ThrowWeapon();
+            M_InputManager.Instance.AltAttackPerformed += OnAltAttackPerformed;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (M_InputManager.Instance != null)
+        {
+            M_InputManager.Instance.AltAttackPerformed -= OnAltAttackPerformed;
+        }
+    }
+
+    private void OnAltAttackPerformed()
+    {
+        if (weaponOut)
+            return;
+
+        ThrowWeapon();
     }
 
     private void ThrowWeapon()
     {
         weaponOut = true;
 
-        heldWeaponModel.SetActive(false);
+        if (heldWeaponModel != null)
+        {
+            heldWeaponModel.SetActive(false);
+        }
 
-        Boomerang spawnedWeapon = Instantiate(
-            boomerangPrefab,
-            throwPoint.position,
-            throwPoint.rotation);
+        Boomerang spawnedWeapon = Instantiate(boomerangPrefab, throwPoint.position, throwPoint.rotation);
 
-        spawnedWeapon.Initialize(
-            this,
-            Camera.main.transform.forward);
+        spawnedWeapon.Initialize(this, Camera.main.transform.forward);
     }
 
     public void WeaponReturned()
@@ -38,6 +52,8 @@ public class ThrowActuator : MonoBehaviour
         weaponOut = false;
 
         if (heldWeaponModel != null)
+        {
             heldWeaponModel.SetActive(true);
+        }
     }
 }

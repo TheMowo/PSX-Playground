@@ -33,7 +33,9 @@ public class FilthAttackHitbox : MonoBehaviour
         if (!other.TryGetComponent(out IDamageable damageable))
             return;
 
-        damageable.TakeDamage(damage);
+        DamageType damageType = DamageType.Enemy;
+
+        DamageInfo damageInfo = new DamageInfo(999999, damageType, gameObject);
 
         blackboard.HasDealtAttackDamage = true;
 

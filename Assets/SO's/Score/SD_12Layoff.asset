@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d16e5f0975eb6214b9f01d027e627af8, type: 3}
-  m_Name: SD_11Layoff
+  m_Name: SD_12Layoff
   m_EditorClassIdentifier: Assembly-CSharp::ScoreDefinition
-  <Id>k__BackingField: 10
+  <Id>k__BackingField: 12
   <BaseValue>k__BackingField: 400
   <DisplayName>k__BackingField: LAYOFFS
   <PopupColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}

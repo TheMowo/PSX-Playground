@@ -37,9 +37,7 @@ public class Boomerang : MonoBehaviour
         owner = ownerScript;
         returnTarget = ownerScript.transform;
 
-        targetPosition =
-            transform.position +
-            throwDirection.normalized * throwDistance;
+        targetPosition = transform.position + throwDirection.normalized * throwDistance;
 
         currentState = State.FlyingOut;
     }
@@ -102,7 +100,11 @@ public class Boomerang : MonoBehaviour
             {
                 hitTargets.Add(damageable);
 
-                damageable.TakeDamage(damage);
+                DamageType damageType = currentState == State.Returning ? DamageType.BoomerangReturning : DamageType.BoomerangOutgoing;
+
+                DamageInfo damageInfo = new DamageInfo(damage, damageType, gameObject);
+
+                damageable.TakeDamage(damageInfo);
 
                 Debug.Log($"{name} dealt {damage} damage to {obj.name}");
             }

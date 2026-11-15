@@ -25,6 +25,15 @@ public class M_InputManager : Singleton<M_InputManager>,
 
     public event Action PausePressed;
 
+    public event Action JumpPerformed;
+    public event Action DashPerformed;
+    public event Action ThrowPerformed;
+
+    public event Action AttackPerformed;
+    public event Action AltAttackPerformed;
+    public event Action FirePerformed;
+    public event Action InteractPerformed;
+
     public event Action SubmitPerformed;
     public event Action CancelPerformed;
 
@@ -40,15 +49,6 @@ public class M_InputManager : Singleton<M_InputManager>,
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
 
-    public bool JumpPressed { get; private set; }
-    public bool DashPressed { get; private set; }
-    public bool ThrowPressed { get; private set; }
-
-    public bool AttackPressed { get; private set; }
-    public bool AltAttackPressed { get; private set; }
-    public bool FirePressed { get; private set; }
-    public bool InteractPressed { get; private set; }
-
     public bool SprintHeld { get; private set; }
     public bool CrouchHeld { get; private set; }
     public bool SlideHeld { get; private set; }
@@ -58,9 +58,6 @@ public class M_InputManager : Singleton<M_InputManager>,
     #region UI Inputs
 
     public Vector2 NavigateInput { get; private set; }
-
-    public bool SubmitPressed { get; private set; }
-    public bool CancelPressed { get; private set; }
 
     #endregion
 
@@ -91,25 +88,12 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (Mouse.current == null)
             return;
 
-        if (Mouse.current.delta.ReadValue() != Vector2.zero || Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame)
+        if (Mouse.current.delta.ReadValue() != Vector2.zero ||
+            Mouse.current.leftButton.wasPressedThisFrame ||
+            Mouse.current.rightButton.wasPressedThisFrame)
         {
             LastInputDevice = InputDeviceType.Mouse;
         }
-    }
-
-    private void LateUpdate()
-    {
-        JumpPressed = false;
-        DashPressed = false;
-        ThrowPressed = false;
-
-        AttackPressed = false;
-        AltAttackPressed = false;
-        FirePressed = false;
-        InteractPressed = false;
-
-        SubmitPressed = false;
-        CancelPressed = false;
     }
 
     private void SetDevice(InputAction.CallbackContext context)
@@ -127,17 +111,17 @@ public class M_InputManager : Singleton<M_InputManager>,
 
     #region Player
 
-    public event Action InteractPerformed;
-
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
+
         SetDevice(context);
     }
 
     public void OnLook(InputAction.CallbackContext context)
     {
         LookInput = context.ReadValue<Vector2>();
+
         SetDevice(context);
     }
 
@@ -145,48 +129,60 @@ public class M_InputManager : Singleton<M_InputManager>,
     {
         SetDevice(context);
 
-        if (context.performed)
-            JumpPressed = true;
+        if (!context.performed)
+            return;
+
+        JumpPerformed?.Invoke();
     }
 
     public void OnDash(InputAction.CallbackContext context)
     {
         SetDevice(context);
 
-        if (context.performed)
-            DashPressed = true;
+        if (!context.performed)
+            return;
+
+        DashPerformed?.Invoke();
     }
 
     public void OnThrow(InputAction.CallbackContext context)
     {
         SetDevice(context);
 
-        if (context.performed)
-            ThrowPressed = true;
+        if (!context.performed)
+            return;
+
+        ThrowPerformed?.Invoke();
     }
 
     public void OnAttack(InputAction.CallbackContext context)
     {
         SetDevice(context);
 
-        if (context.performed)
-            AttackPressed = true;
+        if (!context.performed)
+            return;
+
+        AttackPerformed?.Invoke();
     }
 
     public void OnAltAttack(InputAction.CallbackContext context)
     {
         SetDevice(context);
 
-        if (context.performed)
-            AltAttackPressed = true;
+        if (!context.performed)
+            return;
+
+        AltAttackPerformed?.Invoke();
     }
 
     public void OnFire(InputAction.CallbackContext context)
     {
         SetDevice(context);
 
-        if (context.performed)
-            FirePressed = true;
+        if (!context.performed)
+            return;
+
+        FirePerformed?.Invoke();
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -196,7 +192,6 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (!context.performed)
             return;
 
-        InteractPressed = true;
         InteractPerformed?.Invoke();
     }
 
@@ -281,9 +276,6 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (!context.performed)
             return;
 
-        //Debug.Log("Submit Performed");
-
-        SubmitPressed = true;
         SubmitPerformed?.Invoke();
     }
 
@@ -294,7 +286,6 @@ public class M_InputManager : Singleton<M_InputManager>,
         if (!context.performed)
             return;
 
-        CancelPressed = true;
         CancelPerformed?.Invoke();
     }
 

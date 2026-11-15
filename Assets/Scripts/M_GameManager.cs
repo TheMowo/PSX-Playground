@@ -21,6 +21,15 @@ public class M_GameManager : Singleton<M_GameManager>
         }
 
         VerifyCores();
+        //StartGameplay();
+    }
+
+    private void Update()
+    {
+        if (gameplayStarted && !gameCompleted && !isPaused)
+        {
+            gameplayTime += Time.deltaTime;
+        }
     }
 
     private void OnEnable()
@@ -37,6 +46,7 @@ public class M_GameManager : Singleton<M_GameManager>
     {
         ResetValues();
         VerifyCores();
+        //StartGameplay();
     }
 
     #region Pause Related
@@ -58,7 +68,10 @@ public class M_GameManager : Singleton<M_GameManager>
 
     public bool IsPaused => isPaused;
 
-    public bool IsGameplayBlocked => IsPaused || (TransitionController.Instance != null && TransitionController.Instance.IsTransitioning);
+    public bool IsGameplayBlocked =>
+        IsPaused ||
+        (TransitionController.Instance != null &&
+         TransitionController.Instance.IsTransitioning);
 
     public void AddPauseReason(PauseReason reason)
     {
@@ -111,26 +124,52 @@ public class M_GameManager : Singleton<M_GameManager>
     public event Action OnCoreCollected;
     public event Action OnWinnable;
     public event Action OnWin;
+    public event Action OnGameplayStarted;
 
     private bool canWin;
     private int coreTotal;
     private int currentCores;
 
+    private bool gameplayStarted;
+    private bool gameCompleted;
+    private float gameplayTime;
+
     public bool CanWin => canWin;
     public int CurrentCores => currentCores;
     public int CoreTotal => coreTotal;
+
+    public bool GameplayStarted => gameplayStarted;
+    public bool GameCompleted => gameCompleted;
+    public float GameplayTime => gameplayTime;
 
     private void ResetValues()
     {
         canWin = false;
         coreTotal = 0;
         currentCores = 0;
+
+        gameplayStarted = false;
+        gameCompleted = false;
+        gameplayTime = 0f;
+    }
+
+    public void StartGameplay()
+    {
+        if (gameplayStarted)
+            return;
+
+        gameplayStarted = true;
+        gameCompleted = false;
+        gameplayTime = 0f;
+
+        OnGameplayStarted?.Invoke();
+
+        Debug.Log("Gameplay Started.");
     }
 
     private void VerifyCores()
     {
-        Core[] coreList = FindObjectsByType<Core>(
-            FindObjectsSortMode.None);
+        Core[] coreList = FindObjectsByType<Core>(FindObjectsSortMode.None);
 
         coreTotal = coreList.Length;
 
@@ -144,6 +183,8 @@ public class M_GameManager : Singleton<M_GameManager>
         Debug.Log($"Core Collected ({currentCores}/{coreTotal})");
 
         OnCoreCollected?.Invoke();
+
+        M_ScoreManager.Instance.AddScore(ScoreId.CoreCollected);
 
         CheckWinCondition();
     }
@@ -163,21 +204,29 @@ public class M_GameManager : Singleton<M_GameManager>
         }
     }
 
-    public void Win()
+    public void GameplayEnd()
     {
         if (!canWin)
             return;
+
+        gameCompleted = true;
 
         Debug.Log("Player Won.");
 
         OnWin?.Invoke();
     }
 
-    #endregion
+    public string FormattedGameplayTime
+    {
+        get
+        {
+            int minutes = Mathf.FloorToInt(gameplayTime / 60f);
+            int seconds = Mathf.FloorToInt(gameplayTime % 60f);
+            int centiseconds = Mathf.FloorToInt((gameplayTime % 1f) * 100f);
 
-    #region Score Related
-
-
+            return $"{minutes:00}:{seconds:00}.{centiseconds:00}";
+        }
+    }
 
     #endregion
 }
