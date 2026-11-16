@@ -56,11 +56,13 @@ Material:
     - Vector1_DF019693: 0.5
     - WOBBLE: 0
     - _CRTWarpIntensity: 1
+    - _DistanceApart: 1.5
     - _DistortionStrength: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ScanlineHeight: 1
     - _ScanlineStrength: 0
+    - _ScrollingSpeed: 1
     - _StaticStrength: 0
     - _Toggle_Effect: 0
     m_Colors:
