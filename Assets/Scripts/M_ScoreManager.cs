@@ -4,9 +4,12 @@ using UnityEngine;
 public class M_ScoreManager : Singleton<M_ScoreManager>
 {
     [SerializeField] private ScoreDatabase database;
-    //[SerializeField] private UI_Score scoreUI;
 
     public int CurrentScore { get; private set; }
+    public int BonusTimeScore { get; private set; }
+    public int TotalScore { get; private set; }
+
+    public int TotalKills { get; private set; }
 
     protected override void Awake()
     {
@@ -18,12 +21,12 @@ public class M_ScoreManager : Singleton<M_ScoreManager>
         }
     }
 
-    public void AddScore(ScoreId id)
+    public void RegisterKill()
     {
-        AddScore(id, 1f);
+        TotalKills++;
     }
 
-    public void AddScore(ScoreId id, float multiplier)
+    public void AddScore(ScoreId id)
     {
         if (!database.TryGet(id, out ScoreDefinition definition))
         {
@@ -32,7 +35,7 @@ public class M_ScoreManager : Singleton<M_ScoreManager>
             return;
         }
 
-        int amount = Mathf.RoundToInt(definition.BaseValue * multiplier);
+        int amount = definition.BaseValue;
 
         CurrentScore += amount;
 
@@ -47,5 +50,19 @@ public class M_ScoreManager : Singleton<M_ScoreManager>
     public void ResetScore()
     {
         CurrentScore = 0;
+        BonusTimeScore = 0;
+        TotalScore = 0;
+        TotalKills = 0;
+    }
+
+    public void FinalizeScores(float gameplayTime)
+    {
+        BonusTimeScore = CalculateTimeBonus(gameplayTime);
+        TotalScore = CurrentScore + BonusTimeScore;
+    }
+
+    private int CalculateTimeBonus(float gameplayTime)
+    {
+        return Mathf.Max(0, 10000 - Mathf.RoundToInt(gameplayTime * 10f));
     }
 }

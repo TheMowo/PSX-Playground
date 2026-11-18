@@ -1,10 +1,14 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class M_GameManager : Singleton<M_GameManager>
 {
+    public GameResults FinalResults { get; private set; }
+
+    #region Unity
+
     protected override void Awake()
     {
         base.Awake();
@@ -20,13 +24,12 @@ public class M_GameManager : Singleton<M_GameManager>
             return;
         }
 
-        VerifyCores();
-        //StartGameplay();
+        // StartGameplay();
     }
 
     private void Update()
     {
-        if (gameplayStarted && !gameCompleted && !isPaused)
+        if (IsTiming)
         {
             gameplayTime += Time.deltaTime;
         }
@@ -45,142 +48,99 @@ public class M_GameManager : Singleton<M_GameManager>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         ResetValues();
-        VerifyCores();
-        //StartGameplay();
-    }
 
-    #region Pause Related
-
-    public static event Action<bool> PauseStateChanged;
-
-    public enum PauseReason
-    {
-        PauseMenu,
-        Dialogue,
-        Inventory,
-        Map,
-        Cutscene
-    }
-
-    private readonly HashSet<PauseReason> pauseReasons = new();
-
-    private bool isPaused;
-
-    public bool IsPaused => isPaused;
-
-    public bool IsGameplayBlocked =>
-        IsPaused ||
-        (TransitionController.Instance != null &&
-         TransitionController.Instance.IsTransitioning);
-
-    public void AddPauseReason(PauseReason reason)
-    {
-        if (!pauseReasons.Add(reason))
-            return;
-
-        RefreshPauseState();
-    }
-
-    public void RemovePauseReason(PauseReason reason)
-    {
-        if (!pauseReasons.Remove(reason))
-            return;
-
-        RefreshPauseState();
-    }
-
-    public bool HasPauseReason(PauseReason reason)
-    {
-        return pauseReasons.Contains(reason);
-    }
-
-    public void ClearPauseReasons()
-    {
-        if (pauseReasons.Count == 0)
-            return;
-
-        pauseReasons.Clear();
-        RefreshPauseState();
-    }
-
-    private void RefreshPauseState()
-    {
-        bool shouldPause = pauseReasons.Count > 0;
-
-        if (shouldPause == isPaused)
-            return;
-
-        isPaused = shouldPause;
-
-        Time.timeScale = isPaused ? 0f : 1f;
-
-        PauseStateChanged?.Invoke(isPaused);
+        // StartGameplay();
     }
 
     #endregion
 
     #region Gameplay Loop
 
+    public enum GameplayState
+    {
+        Loading,
+        WaitingToStart,
+        Playing,
+        Winnable,
+        Won
+    }
+
+    private GameplayState gameState;
+
+    public event Action<GameplayState> OnStateChanged;
+
     public event Action OnCoreCollected;
     public event Action OnWinnable;
     public event Action OnWin;
     public event Action OnGameplayStarted;
 
-    private bool canWin;
-    private int coreTotal;
-    private int currentCores;
+    private readonly HashSet<Core> cores = new();
 
-    private bool gameplayStarted;
-    private bool gameCompleted;
+    private int totalCoreCount;
+    private int collectedCoreCount;
+
     private float gameplayTime;
 
-    public bool CanWin => canWin;
-    public int CurrentCores => currentCores;
-    public int CoreTotal => coreTotal;
+    public GameplayState State => gameState;
 
-    public bool GameplayStarted => gameplayStarted;
-    public bool GameCompleted => gameCompleted;
+    public bool CanWin => gameState == GameplayState.Winnable;
+
+    public bool GameCompleted => gameState == GameplayState.Won;
+
+    public bool GameplayStarted => gameState == GameplayState.Playing || gameState == GameplayState.Winnable || gameState == GameplayState.Won;
+
     public float GameplayTime => gameplayTime;
 
-    private void ResetValues()
-    {
-        canWin = false;
-        coreTotal = 0;
-        currentCores = 0;
+    public int CoreTotal => totalCoreCount;
 
-        gameplayStarted = false;
-        gameCompleted = false;
-        gameplayTime = 0f;
+    public int CurrentCores => collectedCoreCount;
+
+    private bool IsTiming => gameState == GameplayState.Playing && !M_PauseManager.Instance.IsPaused;
+
+    public bool IsGameplayBlocked
+    {
+        get
+        {
+            return M_PauseManager.Instance.IsPaused || (TransitionController.Instance != null && TransitionController.Instance.IsTransitioning);
+        }
     }
 
-    public void StartGameplay()
+    public void RegisterCore(Core core)
     {
-        if (gameplayStarted)
+        if (core == null)
             return;
 
-        gameplayStarted = true;
-        gameCompleted = false;
-        gameplayTime = 0f;
+        if (!cores.Add(core))
+            return;
 
-        OnGameplayStarted?.Invoke();
+        totalCoreCount++;
 
-        Debug.Log("Gameplay Started.");
+#if UNITY_EDITOR
+        Debug.Log($"Core Registered ({totalCoreCount}) : {core.name}");
+#endif
     }
 
-    private void VerifyCores()
+    public void UnregisterCore(Core core)
     {
-        Core[] coreList = FindObjectsByType<Core>(FindObjectsSortMode.None);
+        if (core == null)
+            return;
 
-        coreTotal = coreList.Length;
+        if (!cores.Remove(core))
+            return;
 
-        Debug.Log($"Found {coreTotal} cores in scene.");
+        totalCoreCount = Mathf.Max(0, totalCoreCount - 1);
+
+        CheckWinCondition();
     }
 
-    public void CoreCollected()
+    public void CoreCollected(Core core)
     {
-        currentCores++;
+        if (core == null)
+            return;
 
-        Debug.Log($"Core Collected ({currentCores}/{coreTotal})");
+        collectedCoreCount = Mathf.Min(collectedCoreCount + 1, totalCoreCount);
+
+        Debug.Log($"Core Collected ({collectedCoreCount}/{totalCoreCount})");
 
         OnCoreCollected?.Invoke();
 
@@ -191,12 +151,15 @@ public class M_GameManager : Singleton<M_GameManager>
 
     private void CheckWinCondition()
     {
-        if (canWin)
-            return;
+        //if (gameState == GameplayState.Winnable ||
+        //    gameState == GameplayState.Won)
+        //{
+        //    return;
+        //}
 
-        if (currentCores >= coreTotal)
+        if (collectedCoreCount >= totalCoreCount)
         {
-            canWin = true;
+            SetState(GameplayState.Winnable);
 
             Debug.Log("All cores collected. Player can now win.");
 
@@ -204,16 +167,73 @@ public class M_GameManager : Singleton<M_GameManager>
         }
     }
 
-    public void GameplayEnd()
+    private void SetState(GameplayState newState)
     {
-        if (!canWin)
+        if (gameState == newState)
             return;
 
-        gameCompleted = true;
+        gameState = newState;
+
+        OnStateChanged?.Invoke(gameState);
+    }
+
+    public void StartGameplay()
+    {
+        if (gameState == GameplayState.Playing)
+            return;
+
+        gameplayTime = 0f;
+
+        SetState(GameplayState.Playing);
+
+        OnGameplayStarted?.Invoke();
+
+        Debug.Log("Gameplay Started.");
+    }
+
+    public void GameplayEnd()
+    {
+        if (gameState != GameplayState.Winnable)
+            return;
+
+        SetState(GameplayState.Won);
+
+        var scoreManager = M_ScoreManager.Instance;
+
+        scoreManager.FinalizeScores(gameplayTime);
+
+        FinalResults = new GameResults(
+            FormattedGameplayTime,
+            scoreManager.TotalKills,
+            scoreManager.CurrentScore,
+            scoreManager.BonusTimeScore,
+            scoreManager.TotalScore
+        );
 
         Debug.Log("Player Won.");
 
         OnWin?.Invoke();
+    }
+
+    private void ResetValues()
+    {
+        cores.Clear();
+
+        if (M_PauseManager.Instance != null)
+        {
+            M_PauseManager.Instance.ClearReasons();
+        }
+
+        Time.timeScale = 1f;
+
+        totalCoreCount = 0;
+        collectedCoreCount = 0;
+
+        gameplayTime = 0f;
+
+        gameState = GameplayState.WaitingToStart;
+
+        FinalResults = default;
     }
 
     public string FormattedGameplayTime

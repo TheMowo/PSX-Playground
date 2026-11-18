@@ -20,6 +20,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public void TakeDamage(DamageInfo damageInfo)
     {
         currentHealth -= damageInfo.Damage;
+        SpawnHitEffect(damageInfo.Damage);
 
         if (damageInfo.DamageType == DamageType.BoomerangOutgoing)
         {
@@ -56,6 +57,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Death()
     {
+        M_ScoreManager.Instance.RegisterKill();
         Destroy(this.gameObject);
     }
 

@@ -16,7 +16,7 @@ public sealed class GhostRevealText : MonoBehaviour
     }
 
     [Header("Text")]
-    [SerializeField, TextArea(3, 10)] private string targetText = "MAJOR KUSANAGI";
+    [SerializeField, TextArea(3, 10)] public string targetText = "MAJOR KUSANAGI";
     [SerializeField] private Color fadeWhite = Color.white;
 
     [SerializeField, TextArea(2, 5)]
@@ -28,6 +28,7 @@ public sealed class GhostRevealText : MonoBehaviour
     [SerializeField] private float scrambleInterval = 0.04f;
 
     [Header("Completion Fade")]
+    [SerializeField] private bool runFadeSequence = false;
     [SerializeField] private float postRevealDelay = 0.25f;
     [SerializeField] private float fadeToWhiteDuration = 1f;
     [SerializeField] private float holdBeforeFadeOut = 4f;
@@ -57,6 +58,13 @@ public sealed class GhostRevealText : MonoBehaviour
 
     private System.Random random;
     private Color defaultColor;
+
+#if UNITY_EDITOR
+
+    private string previousTargetText;
+    private string previousTmpText;
+
+#endif
 
     public bool IsPlaying => revealCoroutine != null;
 
@@ -177,6 +185,9 @@ public sealed class GhostRevealText : MonoBehaviour
         RevealUpTo(revealableCount);
 
         ShowCompletedText();
+
+        if (!runFadeSequence)
+            yield break;
 
         onRevealCompleted?.Invoke();
 
@@ -362,7 +373,20 @@ public sealed class GhostRevealText : MonoBehaviour
         }
     }
 
+    private void Reset()
+    {
+        textComponent = GetComponent<TMP_Text>();
+
 #if UNITY_EDITOR
+        if (textComponent != null)
+        {
+            targetText = textComponent.text;
+        }
+#endif
+    }
+
+#if UNITY_EDITOR
+
     private void OnValidate()
     {
         revealDuration = Mathf.Max(0.01f, revealDuration);
@@ -375,6 +399,40 @@ public sealed class GhostRevealText : MonoBehaviour
 
         if (string.IsNullOrEmpty(scrambleCharacters))
             scrambleCharacters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        if (textComponent == null)
+            textComponent = GetComponent<TMP_Text>();
+
+        if (textComponent == null)
+            return;
+
+        if (string.IsNullOrEmpty(previousTargetText))
+            previousTargetText = targetText;
+
+        if (string.IsNullOrEmpty(previousTmpText))
+            previousTmpText = textComponent.text;
+
+        if (targetText != previousTargetText)
+        {
+            textComponent.text = targetText;
+
+            previousTargetText = targetText;
+            previousTmpText = textComponent.text;
+
+            UnityEditor.EditorUtility.SetDirty(textComponent);
+
+            return;
+        }
+
+        if (textComponent.text != previousTmpText)
+        {
+            targetText = textComponent.text;
+
+            previousTargetText = targetText;
+            previousTmpText = textComponent.text;
+
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
     }
 #endif
 }

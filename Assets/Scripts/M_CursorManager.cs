@@ -5,18 +5,18 @@ public class M_CursorManager : Singleton<M_CursorManager>
 {
     private void OnEnable()
     {
-        M_GameManager.PauseStateChanged += HandlePauseStateChanged;
+        M_PauseManager.PauseStateChanged += HandlePauseStateChanged;
     }
 
     private void Start()
     {
-        if (M_GameManager.Instance != null)
-            HandlePauseStateChanged(M_GameManager.Instance.IsPaused);
+        if (M_PauseManager.Instance != null)
+            HandlePauseStateChanged(M_PauseManager.Instance.IsPaused);
     }
 
     private void OnDisable()
     {
-        M_GameManager.PauseStateChanged -= HandlePauseStateChanged;
+        M_PauseManager.PauseStateChanged -= HandlePauseStateChanged;
     }
 
     private void HandlePauseStateChanged(bool paused)
@@ -28,12 +28,7 @@ public class M_CursorManager : Singleton<M_CursorManager>
             return;
         }
 
-            
-
-        Cursor.lockState =
-            paused
-                ? CursorLockMode.None
-                : CursorLockMode.Locked;
+        Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
 
         Cursor.visible = paused;
     }

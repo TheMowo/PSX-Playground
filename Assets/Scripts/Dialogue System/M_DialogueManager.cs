@@ -31,8 +31,7 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
 
         UI_Dialogue.Instance.Show();
 
-        M_GameManager.Instance.AddPauseReason(
-            M_GameManager.PauseReason.Dialogue);
+        M_PauseManager.Instance.AddReason(M_PauseManager.PauseReason.Dialogue);
 
         InteractionAbility interactionAbility =
             PlayerPublicRef.Instance.GetComponent<InteractionAbility>();
@@ -137,8 +136,7 @@ public class M_DialogueManager : Singleton<M_DialogueManager>
         currentStory = null;
         currentNPC = null;
 
-        M_GameManager.Instance.RemovePauseReason(
-            M_GameManager.PauseReason.Dialogue);
+        M_PauseManager.Instance.RemoveReason(M_PauseManager.PauseReason.Dialogue);
 
         InteractionAbility interactionAbility =
             PlayerPublicRef.Instance.GetComponent<InteractionAbility>();

@@ -25,10 +25,9 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        M_GameManager.PauseStateChanged += HandlePauseStateChanged;
+        M_PauseManager.PauseStateChanged += HandlePauseStateChanged;
 
-        if (M_GameManager.Instance != null &&
-            M_GameManager.Instance.IsPaused)
+        if (M_PauseManager.Instance != null && M_PauseManager.Instance.IsPaused)
         {
             FixCamera();
         }
@@ -43,18 +42,18 @@ public class FirstPersonCamera : MonoBehaviour
         if (CharacterMotor.Instance != null)
             CharacterMotor.Instance.isFirstPerson = false;
 
-        M_GameManager.PauseStateChanged -= HandlePauseStateChanged;
+        M_PauseManager.PauseStateChanged -= HandlePauseStateChanged;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            if (cameraLocked)
-                UnlockCamera();
-            else
-                FixCamera();
-        }
+        //if (Input.GetKeyDown(KeyCode.L))
+        //{
+        //    if (cameraLocked)
+        //        UnlockCamera();
+        //    else
+        //        FixCamera();
+        //}
 
         if (cameraLocked)
             return;

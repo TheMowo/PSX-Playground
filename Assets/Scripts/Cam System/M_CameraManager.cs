@@ -71,7 +71,7 @@ public class M_CameraManager : Singleton<M_CameraManager>
         if (_playerCam == null && cam.CompareTag("PlayerCam"))
             _playerCam = cam;
 
-        Debug.Log($"Cam {gameObject.name} registered");
+        //Debug.Log($"Cam {gameObject.name} registered");
     }
 
     public void Unregister(CinemachineCamera cam)

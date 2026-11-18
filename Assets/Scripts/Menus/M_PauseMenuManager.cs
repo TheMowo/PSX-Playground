@@ -17,13 +17,13 @@ public class M_PauseMenuManager : Singleton<M_PauseMenuManager>
 
     private void HandlePauseInput()
     {
-        if (M_GameManager.Instance.HasPauseReason(M_GameManager.PauseReason.Dialogue))
+        if (M_PauseManager.Instance.HasReason(M_PauseManager.PauseReason.Dialogue))
         {
             //Debug.Log("Pause attempted, but PauseReason.Dialogue was present.");
             return;
         }
 
-        if (M_GameManager.Instance.HasPauseReason(M_GameManager.PauseReason.PauseMenu))
+        if (M_PauseManager.Instance.HasReason(M_PauseManager.PauseReason.PauseMenu))
         {
             //Debug.Log("Pause Menu Close prompted");
             ClosePauseMenu();
@@ -39,13 +39,13 @@ public class M_PauseMenuManager : Singleton<M_PauseMenuManager>
     {
         pauseMenu.SetActive(true);
 
-        M_GameManager.Instance.AddPauseReason(M_GameManager.PauseReason.PauseMenu);
+        M_PauseManager.Instance.AddReason(M_PauseManager.PauseReason.PauseMenu);
     }
 
     public void ClosePauseMenu()
     {
         pauseMenu.SetActive(false);
 
-        M_GameManager.Instance.RemovePauseReason(M_GameManager.PauseReason.PauseMenu);
+        M_PauseManager.Instance.RemoveReason(M_PauseManager.PauseReason.PauseMenu);
     }
 }
